@@ -1,6 +1,6 @@
 # blender-cnc-templates
 
-CnC Cycles/Eevee Template version 0.01 alpha 10 for Blender 2.9x
+CnC Cycles/Eevee Template version 0.01 alpha 7 for Blender 2.9x
 Created by: Ari Oravasaari / DonutArnold / Zawaro
 Contact: Personal message 'donutarnold' in PPMSite.com or email: donutarnold@gmail.com
 
@@ -167,26 +167,9 @@ It helps you to create nice damage frames for buildings.
 
 ----------------------
 - 4. VERSION HISTORY -
---------------------------------------------
+----------------------
 
-0.01 alpha 11
--Fixed contrast and lighting (disabled contrast preset at Color Management)
--Also fixes images being washed out in Composite
--Remembered to pack textures this time
-
-0.01 alpha 10
--Improve camera positions
--Improve lighting in general (decrease HDR highlights and increase sun strength)
-
-0.01 alpha 9
--Improve Eevee shadow frames rendering
--Set default frame rate to 12
-
-0.01 alpha 8
--Disable post-processing dithering (caused annoying noise in final render background color)
--Add Alpha enable/disable scripts
-
-0.01 alpha 7
+0.01 beta
 -First release of Cycles/Eevee template.
 -Cycles part is fully remade, so the previously released Cycles Template will be discontinued.
 -Added support for Dune 2000.
