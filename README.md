@@ -169,7 +169,7 @@ It helps you to create nice damage frames for buildings.
 - 4. VERSION HISTORY -
 ----------------------
 
-0.01 beta
+0.01 alpha 7
 -First release of Cycles/Eevee template.
 -Cycles part is fully remade, so the previously released Cycles Template will be discontinued.
 -Added support for Dune 2000.
