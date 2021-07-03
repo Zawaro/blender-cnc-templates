@@ -1,6 +1,6 @@
 # blender-cnc-templates
 
-CnC Cycles/Eevee Template version 0.01 alpha 9 for Blender 2.9x
+CnC Cycles/Eevee Template version 0.01 alpha 10 for Blender 2.9x
 Created by: Ari Oravasaari / DonutArnold / Zawaro
 Contact: Personal message 'donutarnold' in PPMSite.com or email: donutarnold@gmail.com
 
@@ -168,6 +168,10 @@ It helps you to create nice damage frames for buildings.
 ----------------------
 - 4. VERSION HISTORY -
 ----------------------
+
+0.01 alpha 10
+-Improve camera positions
+-Improve lighting in general (decrease HDR highlights and increase sun strength)
 
 0.01 alpha 9
 -Improve Eevee shadow frames rendering
