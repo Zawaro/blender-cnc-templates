@@ -167,7 +167,12 @@ It helps you to create nice damage frames for buildings.
 
 ----------------------
 - 4. VERSION HISTORY -
-----------------------
+--------------------------------------------
+
+0.01 alpha 11
+-Fixed contrast and lighting (disabled contrast preset at Color Management)
+-Also fixes images being washed out in Composite
+-Remembered to pack textures this time
 
 0.01 alpha 10
 -Improve camera positions
