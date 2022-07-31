@@ -4,7 +4,11 @@ import bpy
 
 # Hack to import modules from current script path
 current_path = os.path.dirname(os.path.realpath(__file__))
+parent_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(current_path)
+sys.path.append(parent_path)
+
+from shared import constants
 
 from world_materials import D2K_World, RA1_World, RA2_World, RM_World, RW_World, TS_World
 from plane_materials import Plane_Ambient, Plane_Blue, Plane_Grey, Plane_Holdout, Plane_Shadow
@@ -19,7 +23,7 @@ class BaseScene():
 
   # - Scene settings
   cycles_device = 'GPU'
-  cycles_filter_width = 0.9
+  cycles_filter_width = constants.CYCLES_FILTER_WIDTH
   cycles_max_bounces = 4
   cycles_pixel_filter_type = 'GAUSSIAN'
   cycles_preview_samples = 10
@@ -44,7 +48,7 @@ class BaseScene():
   render_fps = 10
   render_dither_intensity = 0 # Important, prevents bg noise
   render_film_transparent = True
-  render_filter_size = 0.8
+  render_filter_size = constants.EEVEE_FILTER_SIZE
   render_image_settings_compression = 90
   render_image_settings_color_mode = 'RGB'
   render_resolution_x = 640
@@ -63,17 +67,29 @@ class BaseScene():
   camera_ortho_scale = 29.92
 
   # - Light
-  sun_location = [-4.14, -10, 12.27]
-  sun_rotation = [0.633555, 0.0726057, 5.79449]
-  sun_energy = 6.5
-  sun_angle = 0.00392699
-  sun_shadow_buffer_bias = 0.02
-  sun_shadow_cascade_count = 2
-  sun_shadow_cascade_fade = 1
-  sun_shadow_cascade_max_distance = 1000
-  sun_contact_shadow_distance = 1000
-  sun_contact_shadow_bias = 0.5
-  sun_contact_shadow_thickness = 0.7
+  sun01_location = [-4.14, -10, 12.27]
+  sun01_rotation = [0.633555, 0.0726057, 5.79449]
+  sun01_energy = 6.5
+  sun01_angle = 0.00392699
+  sun01_shadow_buffer_bias = 0.02
+  sun01_shadow_cascade_count = 2
+  sun01_shadow_cascade_fade = 1
+  sun01_shadow_cascade_max_distance = 1000
+  sun01_contact_shadow_distance = 1000
+  sun01_contact_shadow_bias = 0.5
+  sun01_contact_shadow_thickness = 0.7
+
+  sun02_energy = 4
+  sun02_shadow_cascade_count = 4
+  sun02_shadow_cascade_fade = 0.0
+  sun02_shadow_cascade_max_distance = 1000
+  sun02_shadow_cascade_exponent = 0.8
+
+  # - Compose
+  colorramp_position01 = 0.717273
+  colorramp_position02 = 0.722727
+  colorramp_color01 = (0, 0, 1, 0)
+  colorramp_color02 = (0, 0, 0.250158, 1)
 
   # Create a new scene and make it active
   def create_scene(self):
@@ -129,6 +145,7 @@ class BaseScene():
     bpy.context.scene.render.resolution_x = self.render_resolution_x
     bpy.context.scene.render.resolution_y = self.render_resolution_y
     bpy.context.scene.render.use_single_layer = self.render_use_single_layer
+    bpy.context.scene.view_layers['ViewLayer'].cycles.denoising_store_passes = True
     bpy.context.scene.unit_settings.system = self.unit_settings_system
     bpy.context.scene.view_settings.view_transform = self.view_settings_view_transform
     bpy.context.scene.view_settings.look = self.view_settings_look
@@ -151,6 +168,7 @@ class BaseScene():
   def create_camera(self, name=camera_name, location=camera_location, rotation=camera_rotation, camera_type=camera_type, ortho_scale=camera_ortho_scale):
     bpy.ops.object.camera_add(enter_editmode=False, align='VIEW', location=location, rotation=rotation, scale=(1, 1, 1))
     bpy.context.active_object.name = name
+    bpy.context.active_object.hide_viewport = True
     bpy.context.active_object.data.name = name
     bpy.context.active_object.data.type = camera_type
     if (camera_type == 'PERSP'):
@@ -165,27 +183,45 @@ class BaseScene():
         break
 
   def create_light(self):
-    bpy.ops.object.light_add(type='SUN', radius=1, align='WORLD', location=self.sun_location, rotation=self.sun_rotation, scale=(1, 1, 1))
+    # - Normal Sun
+    bpy.ops.object.light_add(type='SUN', radius=1, align='WORLD', location=self.sun01_location, rotation=self.sun01_rotation, scale=(1, 1, 1))
     bpy.context.active_object.name = 'Sun.' + self.suffix
     bpy.context.active_object.data.name = "Sun." + self.suffix
-    bpy.context.active_object.data.energy = self.sun_energy
-    bpy.context.active_object.data.angle = self.sun_angle
+    bpy.context.active_object.data.energy = self.sun01_energy
+    bpy.context.active_object.data.angle = self.sun01_angle
     bpy.context.active_object.data.cycles.use_multiple_importance_sampling = False
-    bpy.context.active_object.data.shadow_buffer_bias = self.sun_shadow_buffer_bias
-    bpy.context.active_object.data.shadow_cascade_count = self.sun_shadow_cascade_count
-    bpy.context.active_object.data.shadow_cascade_fade = self.sun_shadow_cascade_fade
-    bpy.context.active_object.data.shadow_cascade_max_distance = self.sun_shadow_cascade_max_distance
+    bpy.context.active_object.data.shadow_buffer_bias = self.sun01_shadow_buffer_bias
+    bpy.context.active_object.data.shadow_cascade_count = self.sun01_shadow_cascade_count
+    bpy.context.active_object.data.shadow_cascade_fade = self.sun01_shadow_cascade_fade
+    bpy.context.active_object.data.shadow_cascade_max_distance = self.sun01_shadow_cascade_max_distance
     bpy.context.active_object.data.use_contact_shadow = True
-    bpy.context.active_object.data.contact_shadow_distance = self.sun_contact_shadow_distance
-    bpy.context.active_object.data.contact_shadow_bias = self.sun_contact_shadow_bias
-    bpy.context.active_object.data.contact_shadow_thickness = self.sun_contact_shadow_thickness
+    bpy.context.active_object.data.contact_shadow_distance = self.sun01_contact_shadow_distance
+    bpy.context.active_object.data.contact_shadow_bias = self.sun01_contact_shadow_bias
+    bpy.context.active_object.data.contact_shadow_thickness = self.sun01_contact_shadow_thickness
     bpy.context.active_object.hide_select = True
+
+    # - Sun for rendering shadows with Shadow script
+    bpy.ops.object.light_add(type='SUN', radius=1, align='WORLD', location=self.sun01_location, rotation=self.sun01_rotation, scale=(1, 1, 1))
+    bpy.context.active_object.name = 'Sun.shadow.' + self.suffix
+    bpy.context.active_object.data.name = "Sun.shadow." + self.suffix
+    bpy.context.active_object.data.energy = self.sun02_energy
+    bpy.context.active_object.data.angle = self.sun01_angle
+    bpy.context.active_object.data.cycles.use_multiple_importance_sampling = False
+    bpy.context.active_object.data.shadow_buffer_bias = self.sun01_shadow_buffer_bias
+    bpy.context.active_object.data.shadow_cascade_count = self.sun02_shadow_cascade_count
+    bpy.context.active_object.data.shadow_cascade_fade = self.sun02_shadow_cascade_fade
+    bpy.context.active_object.data.shadow_cascade_max_distance = self.sun02_shadow_cascade_max_distance
+    bpy.context.active_object.data.use_contact_shadow = False
+    bpy.context.active_object.hide_select = True
+    bpy.context.active_object.hide_render = True
+    bpy.context.active_object.hide_viewport = True
 
   def create_planes(self):
     ambient_mat = Plane_Ambient(self.suffix)
     bpy.ops.mesh.primitive_plane_add(size=140, enter_editmode=False, align='WORLD', location=(0, 0, -20), scale=(1, 1, 1))
     bpy.context.active_object.name = 'Plane.ambient.' + self.suffix
     bpy.context.active_object.hide_render = True
+    bpy.context.active_object.hide_viewport = True
     bpy.context.active_object.visible_glossy = False
     bpy.context.active_object.data.materials.append(ambient_mat)
 
@@ -193,12 +229,14 @@ class BaseScene():
     bpy.ops.mesh.primitive_plane_add(size=140, enter_editmode=False, align='WORLD', location=(0, 0, -0.01), scale=(1, 1, 1))
     bpy.context.active_object.name = 'Plane.blue.' + self.suffix
     bpy.context.active_object.hide_render = True
+    bpy.context.active_object.hide_viewport = True
     bpy.context.active_object.visible_glossy = False
     bpy.context.active_object.data.materials.append(blue_mat)
 
     grey_mat = Plane_Grey(self.suffix)
     bpy.ops.mesh.primitive_plane_add(size=140, enter_editmode=False, align='WORLD', location=(0, 0, -0.01), scale=(1, 1, 1))
     bpy.context.active_object.name = 'Plane.grey.' + self.suffix
+    bpy.context.active_object.hide_viewport = True
     bpy.context.active_object.visible_glossy = False
     bpy.context.active_object.data.materials.append(grey_mat)
 
@@ -206,6 +244,7 @@ class BaseScene():
     bpy.ops.mesh.primitive_plane_add(size=140, enter_editmode=False, align='WORLD', location=(0, 0, -0.01), scale=(1, 1, 1))
     bpy.context.active_object.name = 'Plane.holdout2.' + self.suffix
     bpy.context.active_object.hide_render = True
+    bpy.context.active_object.hide_viewport = True
     bpy.context.active_object.visible_glossy = False
     bpy.context.active_object.data.materials.append(holdout_mat)
     bpy.context.active_object.data.materials[0].blend_method = 'BLEND'
@@ -215,8 +254,9 @@ class BaseScene():
     bpy.ops.mesh.primitive_plane_add(size=140, enter_editmode=False, align='WORLD', location=(0, 0, -0.01), scale=(1, 1, 1))
     bpy.context.active_object.name = 'Plane.shadow2.' + self.suffix
     bpy.context.active_object.hide_render = True
+    bpy.context.active_object.hide_viewport = True
     bpy.context.active_object.visible_glossy = False
-    bpy.context.active_object.cycles.is_shadow_catcher = True
+    bpy.context.active_object.is_shadow_catcher = True
     bpy.context.active_object.data.materials.append(shadow_mat)
     bpy.context.active_object.data.materials[0].blend_method = 'BLEND'
     bpy.context.active_object.data.materials[0].shadow_method = 'NONE'
@@ -227,8 +267,9 @@ class BaseScene():
     bpy.ops.mesh.primitive_plane_add(size=140, enter_editmode=False, align='WORLD', location=(0, 0, -0.01), scale=(1, 1, 1))
     bpy.context.active_object.name = 'Plane.shadow.' + self.suffix
     bpy.context.active_object.hide_render = True
+    bpy.context.active_object.hide_viewport = True
     bpy.context.active_object.visible_glossy = False
-    bpy.context.active_object.cycles.is_shadow_catcher = True
+    bpy.context.active_object.is_shadow_catcher = True
     bpy.context.active_object.data.materials.append(shadow_mat)
     bpy.context.active_object.data.materials[0].blend_method = 'BLEND'
     bpy.context.active_object.data.materials[0].shadow_method = 'NONE'
@@ -239,6 +280,7 @@ class BaseScene():
     bpy.ops.mesh.primitive_plane_add(size=140, enter_editmode=False, align='WORLD', location=(0, 0, -0.015), scale=(1, 1, 1))
     bpy.context.active_object.name = 'Plane.holdout.' + self.suffix
     bpy.context.active_object.hide_render = True
+    bpy.context.active_object.hide_viewport = True
     bpy.context.active_object.visible_glossy = False
     bpy.context.active_object.data.materials.append(holdout_mat)
     bpy.context.active_object.data.materials[0].blend_method = 'BLEND'
@@ -252,6 +294,127 @@ class BaseScene():
     bpy.context.window.view_layer = bpy.context.scene.view_layers['ShadowLayer']
     bpy.context.view_layer.layer_collection.children[self.full_name + " Template"].children[self.full_name + " Shadow"].exclude = True
     bpy.context.window.view_layer = bpy.context.scene.view_layers['ViewLayer']
+
+  def create_composite_nodes(self):
+    # Required in order to connect Render Layer node to Denoise node
+    bpy.context.scene.render.engine = 'CYCLES'
+    bpy.context.scene.use_nodes = True
+    renderlayers_node01 = bpy.data.scenes[self.full_name].node_tree.nodes["Render Layers"]
+    renderlayers_node02 = bpy.context.scene.node_tree.nodes.new("CompositorNodeRLayers")
+    renderlayers_node02.layer = "ShadowLayer"
+    composite_node01 = bpy.data.scenes[self.full_name].node_tree.nodes["Composite"]
+
+    switch_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeSwitch")
+    switch_node01.name = "Object"
+    switch_node01.label = "Object"
+    switch_node02 = bpy.context.scene.node_tree.nodes.new("CompositorNodeSwitch")
+    switch_node02.name = "Buildup.Cycles"
+    switch_node02.label = "Buildup.Cycles"
+    switch_node03 = bpy.context.scene.node_tree.nodes.new("CompositorNodeSwitch")
+    switch_node03.name = "Buildup.Eevee"
+    switch_node03.label = "Buildup.Eevee"
+    switch_node04 = bpy.context.scene.node_tree.nodes.new("CompositorNodeSwitch")
+    switch_node04.name = "Shadow.Cycles"
+    switch_node04.label = "Shadow.Cycles"
+    switch_node05 = bpy.context.scene.node_tree.nodes.new("CompositorNodeSwitch")
+    switch_node05.name = "Shadow.Eevee"
+    switch_node05.label = "Shadow.Eevee"
+    switch_node06 = bpy.context.scene.node_tree.nodes.new("CompositorNodeSwitch")
+    switch_node06.name = "Preview.Cycles"
+    switch_node06.label = "Preview.Cycles"
+    switch_node07 = bpy.context.scene.node_tree.nodes.new("CompositorNodeSwitch")
+    switch_node07.name = "Preview.Eevee"
+    switch_node07.label = "Preview.Eevee"
+    switch_node08 = bpy.context.scene.node_tree.nodes.new("CompositorNodeSwitch")
+    switch_node08.name = "Alpha"
+    switch_node08.label = "Alpha"
+
+    alpha_group01 = bpy.data.node_groups.new(type="CompositorNodeTree", name="Alpha Convert")
+    alpha_group01.inputs.new("NodeSocketColor", "Image")
+    alpha_group01_input = alpha_group01.nodes.new("NodeGroupInput")
+    alpha_group01_input.location = (-400, 0)
+    alpha_group01.outputs.new("NodeSocketColor", "Image")
+    alpha_group01.outputs.new("NodeSocketFloat", "Alpha")
+    alpha_group01_output = alpha_group01.nodes.new("NodeGroupOutput")
+    alpha_group01_output.location = (400, 0)
+    alpha_group01_sHSVA = alpha_group01.nodes.new("CompositorNodeSepHSVA")
+    alpha_group01_sHSVA.location = (-200, 200)
+    alpha_group01_cHSVA = alpha_group01.nodes.new("CompositorNodeCombHSVA")
+    alpha_group01_cHSVA.location = (200, 200)
+    alpha_group01_math = alpha_group01.nodes.new("CompositorNodeMath")
+    alpha_group01_math.location = (0, 0)
+    alpha_group01_math.operation = "GREATER_THAN"
+    alpha_group01_math.inputs[1].default_value = 0.325
+    alpha_group01.links.new(alpha_group01_input.outputs[0], alpha_group01_sHSVA.inputs[0])
+    alpha_group01.links.new(alpha_group01_sHSVA.outputs[0], alpha_group01_cHSVA.inputs[0])
+    alpha_group01.links.new(alpha_group01_sHSVA.outputs[1], alpha_group01_cHSVA.inputs[1])
+    alpha_group01.links.new(alpha_group01_sHSVA.outputs[2], alpha_group01_cHSVA.inputs[2])
+    alpha_group01.links.new(alpha_group01_sHSVA.outputs[3], alpha_group01_math.inputs[0])
+    alpha_group01.links.new(alpha_group01_math.outputs[0], alpha_group01_cHSVA.inputs[3])
+    alpha_group01.links.new(alpha_group01_math.outputs[0], alpha_group01_output.inputs[1])
+    alpha_group01.links.new(alpha_group01_cHSVA.outputs[0], alpha_group01_output.inputs[0])
+    alpha_convert_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeGroup")
+    alpha_convert_node01.node_tree = alpha_group01
+    alpha_convert_node02 = bpy.context.scene.node_tree.nodes.new("CompositorNodeGroup")
+    alpha_convert_node02.node_tree = alpha_group01
+
+    denoise_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeDenoise")
+    denoise_node01.prefilter = 'NONE'
+    subtract_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeMixRGB")
+    subtract_node01.blend_type = 'SUBTRACT'
+    subtract_node01.inputs[0].default_value = 1
+    colorramp_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeValToRGB")
+    colorramp_node01.color_ramp.elements[0].position = self.colorramp_position01
+    colorramp_node01.color_ramp.elements[0].color = self.colorramp_color01
+    colorramp_node01.color_ramp.elements[1].position = self.colorramp_position02
+    colorramp_node01.color_ramp.elements[1].color = self.colorramp_color02
+    rgb_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeRGB")
+    rgb_node01.outputs[0].default_value = (0, 0, 1, 1)
+    rgb_node01.name = 'BackgroundRGB'
+    rgb_node01.label = 'BackgroundRGB'
+    rgb_node02 = bpy.context.scene.node_tree.nodes.new("CompositorNodeRGB")
+    rgb_node02.outputs[0].default_value = (0, 0, 0, 0)
+    rgb_node02.name = 'BackgroundAlpha'
+    rgb_node02.label = 'BackgroundAlpha'
+    alphaover_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeAlphaOver")
+    alphaover_node01.use_premultiply = True
+    alphaover_node02 = bpy.context.scene.node_tree.nodes.new("CompositorNodeAlphaOver")
+    alphaover_node02.use_premultiply = True
+
+    bpy.context.scene.node_tree.links.new(switch_node07.outputs[0], composite_node01.inputs[0])
+    bpy.context.scene.node_tree.links.new(switch_node06.outputs[0], switch_node07.inputs[0])
+    bpy.context.scene.node_tree.links.new(switch_node05.outputs[0], switch_node06.inputs[0])
+    bpy.context.scene.node_tree.links.new(switch_node04.outputs[0], switch_node05.inputs[0])
+    bpy.context.scene.node_tree.links.new(switch_node03.outputs[0], switch_node04.inputs[0])
+    bpy.context.scene.node_tree.links.new(switch_node02.outputs[0], switch_node03.inputs[0])
+    bpy.context.scene.node_tree.links.new(switch_node01.outputs[0], switch_node02.inputs[0])
+
+    bpy.context.scene.node_tree.links.new(renderlayers_node01.outputs[0], denoise_node01.inputs[0])
+    bpy.context.scene.node_tree.links.new(renderlayers_node01.outputs[2], denoise_node01.inputs[1])
+    bpy.context.scene.node_tree.links.new(renderlayers_node01.outputs[3], denoise_node01.inputs[2])
+    bpy.context.scene.node_tree.links.new(denoise_node01.outputs[0], switch_node01.inputs[0])
+    bpy.context.scene.node_tree.links.new(denoise_node01.outputs[0], alpha_convert_node01.inputs[0])
+    bpy.context.scene.node_tree.links.new(alpha_convert_node01.outputs[0], alphaover_node01.inputs[2])
+
+    bpy.context.scene.node_tree.links.new(renderlayers_node02.outputs[0], alpha_convert_node02.inputs[0])
+    bpy.context.scene.node_tree.links.new(alpha_convert_node02.outputs[1], subtract_node01.inputs[2])
+    bpy.context.scene.node_tree.links.new(alpha_convert_node01.outputs[1], subtract_node01.inputs[1])
+    bpy.context.scene.node_tree.links.new(subtract_node01.outputs[0], colorramp_node01.inputs[0])
+    bpy.context.scene.node_tree.links.new(colorramp_node01.outputs[0], alphaover_node02.inputs[2])
+
+    bpy.context.scene.node_tree.links.new(rgb_node01.outputs[0], switch_node08.inputs[0])
+    bpy.context.scene.node_tree.links.new(rgb_node02.outputs[0], switch_node08.inputs[1])
+    bpy.context.scene.node_tree.links.new(switch_node08.outputs[0], alphaover_node01.inputs[1])
+    bpy.context.scene.node_tree.links.new(switch_node08.outputs[0], alphaover_node02.inputs[1])
+
+    bpy.context.scene.node_tree.links.new(alphaover_node01.outputs[0], switch_node01.inputs[1])
+    bpy.context.scene.node_tree.links.new(alphaover_node01.outputs[0], switch_node02.inputs[1])
+    bpy.context.scene.node_tree.links.new(alphaover_node01.outputs[0], switch_node03.inputs[1])
+    bpy.context.scene.node_tree.links.new(alphaover_node02.outputs[0], switch_node04.inputs[1])
+    bpy.context.scene.node_tree.links.new(alphaover_node02.outputs[0], switch_node05.inputs[1])
+    bpy.context.scene.node_tree.links.new(alphaover_node01.outputs[0], switch_node06.inputs[1])
+    bpy.context.scene.node_tree.links.new(alphaover_node01.outputs[0], switch_node07.inputs[1])
+
 
 ## -- Red Alert 2 -- ##
 
@@ -279,6 +442,7 @@ class RA2(BaseScene):
     RA2_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
     self.create_shadow_layer()
+    self.create_composite_nodes()
 
 
 class RA2_INF(RA2):
@@ -327,6 +491,12 @@ class TS(BaseScene):
   sun_contact_shadow_bias = 1
   sun_contact_shadow_thickness = 0.9
 
+  # - Compose
+  colorramp_position01 = 0.717273
+  colorramp_position02 = 0.722727
+  colorramp_color01 = (0, 0, 1, 0)
+  colorramp_color02 = (0, 0, 0.250158, 1)
+
   def __init__(self):
     self.set_full_name()
     self.create_scene()
@@ -340,6 +510,7 @@ class TS(BaseScene):
     TS_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
     self.create_shadow_layer()
+    self.create_composite_nodes()
 
 class TS_INF(TS):
   name = "Tiberian Sun"
@@ -400,6 +571,7 @@ class RW(BaseScene):
     RW_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
     self.create_shadow_layer()
+    self.create_composite_nodes()
 
 class RW_INF(RW):
   name = "ReWire"
@@ -458,6 +630,7 @@ class RA1(BaseScene):
     RA1_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
     self.create_shadow_layer()
+    self.create_composite_nodes()
 
 class RA1_INF(RA1):
   name = "Red Alert / Tiberian Dawn"
@@ -516,6 +689,7 @@ class RM(BaseScene):
     RM_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
     self.create_shadow_layer()
+    self.create_composite_nodes()
 
 class RM_INF(RM):
   name = "C&C Remastered"
@@ -581,6 +755,7 @@ class D2K(BaseScene):
     D2K_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
     self.create_shadow_layer()
+    self.create_composite_nodes()
 
 class D2K_INF(D2K):
   name = "Dune 2000"
