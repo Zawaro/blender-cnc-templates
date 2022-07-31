@@ -476,9 +476,9 @@ class RA1_FX(RA1):
 ## -- Red Alert / Tiberian Dawn Remastered Collection -- ##
 
 class RM(BaseScene):
-  name = "Remastered Collection"
+  name = "C&C Remastered"
   type = ""
-  full_name = "Remastered Collection"
+  full_name = "C&C Remastered"
   suffix = "RM"
   camera_name = 'Camera.' + suffix
 
@@ -518,16 +518,16 @@ class RM(BaseScene):
     self.create_shadow_layer()
 
 class RM_INF(RM):
-  name = "Remastered Collection"
+  name = "C&C Remastered"
   type = "Infantry"
-  full_name = "Remastered Collection"
+  full_name = "C&C Remastered"
   suffix = "RM.INF"
   camera_name = 'Camera.' + suffix
   
 class RM_FX(RM):
-  name = "Remastered Collection"
+  name = "C&C Remastered"
   type = "Effects"
-  full_name = "Remastered Collection"
+  full_name = "C&C Remastered"
   suffix = "RM.FX"
   camera_name = 'Camera.' + suffix
 
