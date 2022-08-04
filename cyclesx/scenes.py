@@ -418,8 +418,9 @@ class BaseScene():
     bpy.context.scene.node_tree.links.new(alphaover_node01.outputs[0], switch_node06.inputs[1])
     bpy.context.scene.node_tree.links.new(alphaover_node01.outputs[0], switch_node07.inputs[1])
 
-
+#######################
 ## -- Red Alert 2 -- ##
+#######################
 
 class RA2(BaseScene):
   name = "Red Alert 2"
@@ -466,7 +467,9 @@ class RA2_FX(RA2):
   suffix = "RA2.FX"
   camera_name = 'Camera.' + suffix
 
+########################
 ## -- Tiberian Sun -- ##
+########################
 
 class TS(BaseScene):
   name = "Tiberian Sun"
@@ -529,7 +532,9 @@ class TS_FX(TS):
   suffix = "TS.FX"
   camera_name = 'Camera.' + suffix
 
+##################
 ## -- ReWire -- ##
+##################
 
 class RW(BaseScene):
   name = "ReWire"
@@ -590,7 +595,9 @@ class RW_FX(RW):
   suffix = "RW.FX"
   camera_name = 'Camera.' + suffix
 
+#####################################
 ## -- Red Alert / Tiberian Dawn -- ##
+#####################################
 
 class RA1(BaseScene):
   name = "Red Alert / Tiberian Dawn"
@@ -649,7 +656,9 @@ class RA1_FX(RA1):
   suffix = "RA1.FX"
   camera_name = 'Camera.' + suffix
 
+###########################################################
 ## -- Red Alert / Tiberian Dawn Remastered Collection -- ##
+###########################################################
 
 class RM(BaseScene):
   name = "C&C Remastered"
@@ -708,7 +717,9 @@ class RM_FX(RM):
   suffix = "RM.FX"
   camera_name = 'Camera.' + suffix
 
+#####################
 ## -- Dune 2000 -- ##
+#####################
 
 class D2K(BaseScene):
   name = "Dune 2000"
