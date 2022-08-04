@@ -27,8 +27,8 @@ class BaseScene():
   cycles_max_bounces = 4
   cycles_pixel_filter_type = 'GAUSSIAN'
   cycles_preview_samples = 10
-  cycles_samples = 256
-  cycles_adaptive_min_samples = 128
+  cycles_samples = 64
+  cycles_adaptive_min_samples = 32
   cycles_sample_clamp_indirect = 0.05
   cycles_transmission_bounces = 8
   cycles_use_denoising = False # Disabled in Blender 3.x, using nodes instead
