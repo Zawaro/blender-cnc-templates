@@ -1,6 +1,7 @@
 import os
 import sys
 
+current_path = os.path.dirname(os.path.realpath(__file__))
 parent_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(parent_path)
 
@@ -73,6 +74,29 @@ def generate_scripts():
         f.write(base)
 
   # - Create toggle Alpha scripts
+  alpha_disable = '''import bpy
+
+bpy.context.scene.node_tree.nodes["Alpha"].check = False
+bpy.context.scene.render.image_settings.color_mode = 'RGB'
+'''
+  alpha_enable = '''import bpy
+
+bpy.context.scene.node_tree.nodes["Alpha"].check = True
+bpy.context.scene.render.image_settings.file_format = 'PNG'
+bpy.context.scene.render.image_settings.color_mode = 'RGBA'
+'''
+
+  with open(os.path.join(output_path, 'Alpha.Disable.txt'), 'w') as f:
+    f.write(alpha_disable)
+
+  with open(os.path.join(output_path, 'Alpha.Enable.txt'), 'w') as f:
+    f.write(alpha_enable)
+
+  # - Readme
+  
+  with open(os.path.join(current_path, 'README.md'), 'r') as readme:
+    with open(os.path.join(output_path, 'Readme.txt'), 'w') as f:
+      f.write(readme.read())
 
 def get_base_scripts(render_engine):
   return f'''import bpy
