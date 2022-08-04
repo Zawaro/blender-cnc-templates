@@ -1,0 +1,5 @@
+import bpy
+
+bpy.context.scene.node_tree.nodes["Alpha"].check = True
+bpy.context.scene.render.image_settings.file_format = 'PNG'
+bpy.context.scene.render.image_settings.color_mode = 'RGBA'
