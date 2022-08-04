@@ -75,15 +75,16 @@ class BaseScene():
   sun01_shadow_cascade_count = 2
   sun01_shadow_cascade_fade = 1
   sun01_shadow_cascade_max_distance = 1000
+  sun01_shadow_cascade_exponent = 0.8
   sun01_contact_shadow_distance = 1000
   sun01_contact_shadow_bias = 0.5
   sun01_contact_shadow_thickness = 0.7
 
-  sun02_energy = 4
+  sun02_energy = 2.3
   sun02_shadow_cascade_count = 4
   sun02_shadow_cascade_fade = 0.0
   sun02_shadow_cascade_max_distance = 1000
-  sun02_shadow_cascade_exponent = 0.8
+  sun02_shadow_cascade_exponent = 1.0
 
   # - Compose
   colorramp_position01 = 0.717273
@@ -194,6 +195,7 @@ class BaseScene():
     bpy.context.active_object.data.shadow_cascade_count = self.sun01_shadow_cascade_count
     bpy.context.active_object.data.shadow_cascade_fade = self.sun01_shadow_cascade_fade
     bpy.context.active_object.data.shadow_cascade_max_distance = self.sun01_shadow_cascade_max_distance
+    bpy.context.active_object.data.shadow_cascade_exponent = self.sun01_shadow_cascade_exponent
     bpy.context.active_object.data.use_contact_shadow = True
     bpy.context.active_object.data.contact_shadow_distance = self.sun01_contact_shadow_distance
     bpy.context.active_object.data.contact_shadow_bias = self.sun01_contact_shadow_bias
@@ -211,6 +213,7 @@ class BaseScene():
     bpy.context.active_object.data.shadow_cascade_count = self.sun02_shadow_cascade_count
     bpy.context.active_object.data.shadow_cascade_fade = self.sun02_shadow_cascade_fade
     bpy.context.active_object.data.shadow_cascade_max_distance = self.sun02_shadow_cascade_max_distance
+    bpy.context.active_object.data.shadow_cascade_exponent = self.sun02_shadow_cascade_exponent
     bpy.context.active_object.data.use_contact_shadow = False
     bpy.context.active_object.hide_select = True
     bpy.context.active_object.hide_render = True
