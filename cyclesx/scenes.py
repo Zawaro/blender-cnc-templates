@@ -454,11 +454,20 @@ class RA2_INF(RA2):
   type = "Infantry"
   full_name = "Red Alert 2"
   suffix = "RA2.INF"
+
+  # - Render
+  render_resolution_x = 320
+  render_resolution_y = 240
+
+  # - Camera
   camera_name = 'Camera.' + suffix
+  camera_ortho_scale = 14.96
 
   # - Light
-  sun_location = [0, 0, 12.27]
-  sun_rotation = [0, 0, 0]
+  sun01_location = [0, 0, 12.27]
+  sun01_rotation = [0, 0, 0]
+
+  sun02_energy = 2.3
 
 class RA2_FX(RA2):
   name = "Red Alert 2"
@@ -485,17 +494,19 @@ class TS(BaseScene):
   camera_ortho_scale = 37.4
 
   # - Light
-  sun_location = [-0.800477, -10.1766, 12.27]
-  sun_rotation = [0.633555, 0.0726057, 6.10865]
-  sun_energy = 4
-  sun_angle = 0.00392699
-  sun_shadow_buffer_bias = 0.02
-  sun_shadow_cascade_count = 2
-  sun_shadow_cascade_fade = 1
-  sun_shadow_cascade_max_distance = 1000
-  sun_contact_shadow_distance = 1000
-  sun_contact_shadow_bias = 1
-  sun_contact_shadow_thickness = 0.9
+  sun01_location = [-0.800477, -10.1766, 12.27]
+  sun01_rotation = [0.633555, 0.0726057, 6.10865]
+  sun01_energy = 4
+  sun01_angle = 0.00392699
+  sun01_shadow_buffer_bias = 0.02
+  sun01_shadow_cascade_count = 2
+  sun01_shadow_cascade_fade = 1
+  sun01_shadow_cascade_max_distance = 1000
+  sun01_contact_shadow_distance = 1000
+  sun01_contact_shadow_bias = 1
+  sun01_contact_shadow_thickness = 0.9
+  
+  sun02_energy = 1.0
 
   # - Compose
   colorramp_position01 = 0.717273
@@ -523,7 +534,14 @@ class TS_INF(TS):
   type = "Infantry"
   full_name = "Tiberian Sun"
   suffix = "TS.INF"
+
+  # - Render
+  render_resolution_x = 320
+  render_resolution_y = 240
+
+  # - Camera
   camera_name = 'Camera.' + suffix
+  camera_ortho_scale = 18.7
   
 class TS_FX(TS):
   name = "Tiberian Sun"
@@ -554,17 +572,19 @@ class RW(BaseScene):
   camera_ortho_scale = 37.4
 
   # - Light
-  sun_location = [-0.800477, -10.1766, 12.27]
-  sun_rotation = [0.633555, 0.0726057, 6.10865]
-  sun_energy = 6.5
-  sun_angle = 0.00392699
-  sun_shadow_buffer_bias = 0.02
-  sun_shadow_cascade_count = 2
-  sun_shadow_cascade_fade = 1
-  sun_shadow_cascade_max_distance = 1000
-  sun_contact_shadow_distance = 1000
-  sun_contact_shadow_bias = 0.5
-  sun_contact_shadow_thickness = 0.7
+  sun01_location = [-0.800477, -10.1766, 12.27]
+  sun01_rotation = [0.633555, 0.0726057, 6.10865]
+  sun01_energy = 6.5
+  sun01_angle = 0.00392699
+  sun01_shadow_buffer_bias = 0.02
+  sun01_shadow_cascade_count = 2
+  sun01_shadow_cascade_fade = 1
+  sun01_shadow_cascade_max_distance = 1000
+  sun01_contact_shadow_distance = 1000
+  sun01_contact_shadow_bias = 0.5
+  sun01_contact_shadow_thickness = 0.7
+  
+  sun02_energy = 2.1
 
   def __init__(self):
     self.set_full_name()
@@ -604,27 +624,28 @@ class RA1(BaseScene):
   type = ""
   full_name = "Red Alert / Tiberian Dawn"
   suffix = "RA1"
-  camera_name = 'Camera.' + suffix
 
   world_texture_name = 'generic_hdri.exr'
   world_texture_path = 'shared/generic_hdri.exr'
 
   # - Camera
-  camera_name01 = 'Camera.' + suffix
-  camera_type01 = 'PERSP'
-  camera_ortho_scale01 = 1.0472
-  camera_location01 = [0, -28.3854, 23.8179]
-  camera_rotation01 = [0.872665, 0, 0]
-  camera_name02 = 'Camera.' + suffix + '.isometric'
-  camera_type02 = 'ORTHO'
-  camera_ortho_scale02 = 39.4299
-  camera_location02 = [0, -37.8463, 31.7564]
-  camera_rotation02 = [0.872665, 0, 0]
+  camera01_name = 'Camera.' + suffix
+  camera01_type = 'PERSP'
+  camera01_ortho_scale = 1.0472
+  camera01_location = [0, -36.2837, 30.4457]
+  camera01_rotation = [0.872665, 0, 0]
+  camera02_name = 'Camera.' + suffix + '.isometric'
+  camera02_type = 'ORTHO'
+  camera02_ortho_scale = 53.37
+  camera02_location = [0, -31.96573, 26.8228]
+  camera02_rotation = [0.872665, 0, 0]
 
   # - Light
-  sun_location = [-4.0, 4.0, 16.0]
-  sun_rotation = [-0.10472, -0.179769, 0.00762709]
-  sun_energy = 5.5
+  sun01_location = [-4.0, 4.0, 16.0]
+  sun01_rotation = [-0.10472, -0.179769, 0.00762709]
+  sun01_energy = 5.5
+
+  sun02_energy = 2.3
 
   def __init__(self):
     self.set_full_name()
@@ -634,8 +655,8 @@ class RA1(BaseScene):
     self.set_eevee_settings()
     self.set_render_settings()
     self.create_collections()
-    self.create_camera(self.camera_name01, self.camera_location01, self.camera_rotation01, self.camera_type01, self.camera_ortho_scale01)
-    self.create_camera(self.camera_name02, self.camera_location02, self.camera_rotation02, self.camera_type02, self.camera_ortho_scale02)
+    self.create_camera(self.camera01_name, self.camera01_location, self.camera01_rotation, self.camera01_type, self.camera01_ortho_scale)
+    self.create_camera(self.camera02_name, self.camera02_location, self.camera02_rotation, self.camera02_type, self.camera02_ortho_scale)
     self.create_light()
     RA1_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
@@ -647,14 +668,22 @@ class RA1_INF(RA1):
   type = "Infantry"
   full_name = "Red Alert / Tiberian Dawn"
   suffix = "RA1.INF"
-  camera_name = 'Camera.' + suffix
+  camera01_name = 'Camera.' + suffix
   
 class RA1_FX(RA1):
   name = "Red Alert / Tiberian Dawn"
   type = "Effects"
   full_name = "Red Alert / Tiberian Dawn"
   suffix = "RA1.FX"
-  camera_name = 'Camera.' + suffix
+
+  # - Render
+  render_resolution_x = 240
+  render_resolution_y = 240
+
+  # - Camera
+  camera01_name = 'Camera.' + suffix
+  camera01_location = [0.0, -13.6064, 11.4174]
+  camera02_ortho_scale = 53.37
 
 ###########################################################
 ## -- Red Alert / Tiberian Dawn Remastered Collection -- ##
@@ -665,27 +694,28 @@ class RM(BaseScene):
   type = ""
   full_name = "C&C Remastered"
   suffix = "RM"
-  camera_name = 'Camera.' + suffix
 
   world_texture_name = 'generic_hdri.exr'
   world_texture_path = 'shared/generic_hdri.exr'
 
   # - Camera
-  camera_name01 = 'Camera.' + suffix
-  camera_type01 = 'PERSP'
-  camera_ortho_scale01 = 1.0472
-  camera_location01 = [0, -28.3854, 23.8179]
-  camera_rotation01 = [0.872665, 0, 0]
-  camera_name02 = 'Camera.' + suffix + '.isometric'
-  camera_type02 = 'ORTHO'
-  camera_ortho_scale02 = 39.4299
-  camera_location02 = [0, -37.8463, 31.7564]
-  camera_rotation02 = [0.872665, 0, 0]
+  camera01_name = 'Camera.' + suffix
+  camera01_type = 'PERSP'
+  camera01_ortho_scale = 1.0472
+  camera01_location = [0, -36.2837, 30.4457]
+  camera01_rotation = [0.872665, 0, 0]
+  camera02_name = 'Camera.' + suffix + '.isometric'
+  camera02_type = 'ORTHO'
+  camera02_ortho_scale = 20.0138
+  camera02_location = [0, -31.9657, 26.8228]
+  camera02_rotation = [0.872665, 0, 0]
 
   # - Light
-  sun_location = [-4.0, 4.0, 16.0]
-  sun_rotation = [-0.10472, -0.179769, 0.00762709]
-  sun_energy = 5.5
+  sun01_location = [-4.0, 4.0, 16.0]
+  sun01_rotation = [-0.10472, -0.179769, 0.00762709]
+  sun01_energy = 5.5
+
+  sun02_energy = 2.3
 
   def __init__(self):
     self.set_full_name()
@@ -695,8 +725,8 @@ class RM(BaseScene):
     self.set_eevee_settings()
     self.set_render_settings()
     self.create_collections()
-    self.create_camera(self.camera_name01, self.camera_location01, self.camera_rotation01, self.camera_type01, self.camera_ortho_scale01)
-    self.create_camera(self.camera_name02, self.camera_location02, self.camera_rotation02, self.camera_type02, self.camera_ortho_scale02)
+    self.create_camera(self.camera01_name, self.camera01_location, self.camera01_rotation, self.camera01_type, self.camera01_ortho_scale)
+    self.create_camera(self.camera02_name, self.camera02_location, self.camera02_rotation, self.camera02_type, self.camera02_ortho_scale)
     self.create_light()
     RM_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
@@ -731,29 +761,31 @@ class D2K(BaseScene):
   world_texture_path = 'shared/desolated_hdri.exr'
 
   # - Camera
-  camera_name01 = 'Camera.' + suffix
-  camera_type01 = 'PERSP'
-  camera_ortho_scale01 = 1.0472
-  camera_location01 = [0, -28.3854, 23.8179]
-  camera_rotation01 = [0.872665, 0, 0]
-  camera_name02 = 'Camera.' + suffix + '.isometric'
-  camera_type02 = 'ORTHO'
-  camera_ortho_scale02 = 39.4299
-  camera_location02 = [0, -37.8463, 31.7564]
-  camera_rotation02 = [0.872665, 0, 0]
+  camera01_name = 'Camera.' + suffix
+  camera01_type = 'PERSP'
+  camera01_ortho_scale = 1.0472
+  camera01_location = [0, -28.3854, 23.8179]
+  camera01_rotation = [0.872665, 0, 0]
+  camera02_name = 'Camera.' + suffix + '.isometric'
+  camera02_type = 'ORTHO'
+  camera02_ortho_scale = 39.4299
+  camera02_location = [0, -37.8463, 31.7564]
+  camera02_rotation = [0.872665, 0, 0]
 
   # - Light
-  sun_location = [-4.0, 4.0, 16.0]
-  sun_rotation = [-0.698132, 0, 2.35619]
-  sun_energy = 5.5
-  sun_angle = 0.00392699
-  sun_shadow_buffer_bias = 0.02
-  sun_shadow_cascade_count = 2
-  sun_shadow_cascade_fade = 1
-  sun_shadow_cascade_max_distance = 1000
-  sun_contact_shadow_distance = 1000
-  sun_contact_shadow_bias = 0.5
-  sun_contact_shadow_thickness = 0.7
+  sun01_location = [-4.0, 4.0, 16.0]
+  sun01_rotation = [-0.698132, 0, 2.35619]
+  sun01_energy = 5.5
+  sun01_angle = 0.00392699
+  sun01_shadow_buffer_bias = 0.02
+  sun01_shadow_cascade_count = 2
+  sun01_shadow_cascade_fade = 1
+  sun01_shadow_cascade_max_distance = 1000
+  sun01_contact_shadow_distance = 1000
+  sun01_contact_shadow_bias = 0.5
+  sun01_contact_shadow_thickness = 0.7
+  
+  sun02_energy = 2.3
 
   def __init__(self):
     self.set_full_name()
@@ -763,8 +795,8 @@ class D2K(BaseScene):
     self.set_eevee_settings()
     self.set_render_settings()
     self.create_collections()
-    self.create_camera(self.camera_name01, self.camera_location01, self.camera_rotation01, self.camera_type01, self.camera_ortho_scale01)
-    self.create_camera(self.camera_name02, self.camera_location02, self.camera_rotation02, self.camera_type02, self.camera_ortho_scale02)
+    self.create_camera(self.camera01_name, self.camera01_location, self.camera01_rotation, self.camera01_type, self.camera01_ortho_scale)
+    self.create_camera(self.camera02_name, self.camera02_location, self.camera02_rotation, self.camera02_type, self.camera02_ortho_scale)
     self.create_light()
     D2K_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
