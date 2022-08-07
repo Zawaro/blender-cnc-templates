@@ -58,7 +58,6 @@ class BaseScene():
   view_settings_view_transform = 'Standard'
   view_settings_look = 'None'
   view_settings_exposure = 0
-  world_color = (0, 0, 0)
 
   # - Camera
   camera_location = [110.039, -110.039, 89.84670]
@@ -152,7 +151,6 @@ class BaseScene():
     bpy.context.scene.view_settings.view_transform = self.view_settings_view_transform
     bpy.context.scene.view_settings.look = self.view_settings_look
     bpy.context.scene.view_settings.exposure = self.view_settings_exposure
-    bpy.context.scene.world.color = self.world_color
 
   def create_collections(self):
     collection = bpy.data.collections.new(self.full_name)
@@ -489,7 +487,6 @@ class TS(BaseScene):
   suffix = "TS"
   camera_name = 'Camera.' + suffix
 
-  world_color = (0.191202, 0.191202, 0.191202)
   world_texture_name = 'desolated_hdri.exr'
   world_texture_path = 'shared/desolated_hdri.exr'
 
@@ -568,7 +565,6 @@ class RW(BaseScene):
   render_resolution_x = 1280
   render_resolution_y = 960
 
-  world_color = (0.0998987, 0.0684781, 0.0318961)
   world_texture_name = 'desolated_hdri.exr'
   world_texture_path = 'shared/desolated_hdri.exr'
 
