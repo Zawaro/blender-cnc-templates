@@ -1,0 +1,2 @@
+TEMPLATE_VERSION = "1_00_alpha1"
+TEMPLATE_PREFIX = "CnC_CyclesX"
