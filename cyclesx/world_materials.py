@@ -23,6 +23,7 @@ def RA2_World(world_texture_path, world_texture_name, suffix):
     data_image = bpy.data.images.load(tex_dir)
   tex_env_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexEnvironment")
   tex_env_node.image = data_image
+  tex_env_node.image.use_fake_user = True
   huesat_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeHueSaturation")
   huesat_node.inputs[1].default_value = 0.25
   huesat_node.inputs[2].default_value = 1.0
@@ -86,6 +87,7 @@ def RA1_World(world_texture_path, world_texture_name, suffix):
     data_image = bpy.data.images.load(tex_dir)
   tex_env_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexEnvironment")
   tex_env_node.image = data_image
+  tex_env_node.image.use_fake_user = True
   huesat_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeHueSaturation")
   huesat_node.inputs[1].default_value = 0.25
   huesat_node.inputs[2].default_value = 1.0
@@ -150,6 +152,7 @@ def RW_World(world_texture_path, world_texture_name, suffix):
     data_image = bpy.data.images.load(tex_dir)
   tex_env_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexEnvironment")
   tex_env_node.image = data_image
+  tex_env_node.image.use_fake_user = True
   huesat_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeHueSaturation")
   huesat_node01.inputs[1].default_value = 0.5
   huesat_node01.inputs[2].default_value = 0.35
@@ -206,6 +209,7 @@ def TS_World(world_texture_path, world_texture_name, suffix):
     data_image = bpy.data.images.load(tex_dir)
   tex_env_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexEnvironment")
   tex_env_node.image = data_image
+  tex_env_node.image.use_fake_user = True
   huesat_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeHueSaturation")
   huesat_node01.inputs[1].default_value = 0.5
   huesat_node01.inputs[2].default_value = 1.2
@@ -262,6 +266,7 @@ def D2K_World(world_texture_path, world_texture_name, suffix):
     data_image = bpy.data.images.load(tex_dir)
   tex_env_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexEnvironment")
   tex_env_node.image = data_image
+  tex_env_node.image.use_fake_user = True
   huesat_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeHueSaturation")
   huesat_node01.inputs[1].default_value = 0.5
   huesat_node01.inputs[2].default_value = 1.4
@@ -317,6 +322,7 @@ def RM_World(world_texture_path, world_texture_name, suffix):
     data_image = bpy.data.images.load(tex_dir)
   tex_env_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexEnvironment")
   tex_env_node.image = data_image
+  tex_env_node.image.use_fake_user = True
   huesat_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeHueSaturation")
   huesat_node.inputs[1].default_value = 0.25
   huesat_node.inputs[2].default_value = 1.0
