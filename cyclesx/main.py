@@ -47,30 +47,9 @@ for file in range(len(scripts)):
     text.name = script_name
     text.write(script.read())
 
-# 4. Output .blend file
+# 4. Pack assets
+bpy.ops.file.pack_all()
+
+# 5. Output .blend file
 save_path = os.path.join(current_path, "CnC_CyclesX_{}.blend".format(TEMPLATE_VERSION))
 bpy.ops.wm.save_as_mainfile(filepath=save_path)
-
-# CS = bpy.context.scene
-# C = bpy.context
-
-# renderEngine = CS.cnc_tools.render_engine
-# renderType = CS.cnc_tools.render_type
-# suffix = getSuffix(CS.name)
-# props = getRenderProperties(renderType, renderEngine)
-
-# CS.render.engine = renderEngine
-
-# def getRenderProperties(self, renderType, renderEngine):
-#   if renderEngine == 'CYCLES':
-#     if renderType == "Reset":     return [1, 1, 1, 1, 1, 0, 1,  1]
-#     elif renderType == "Buildup": return [1, 0, 1, 1, 1, 1, 1,  1]
-#     elif renderType == "Object":  return [1, 1, 1, 1, 1, 1, 0,  1]
-#     elif renderType == "Preview": return [0, 1, 0, 1, 1, 1, 1,  1]
-#     elif renderType == "Shadow":  return [0, 1, 0, 1, 1, 1, 1,  0]
-#   else:
-#     if renderType == "Reset":     return [1, 1, 1, 1, 1, 0, 1,  1]
-#     elif renderType == "Buildup": return [1, 0, 1, 1, 1, 1, 1,  1]
-#     elif renderType == "Object":  return [1, 1, 1, 1, 1, 1, 1,  1]
-#     elif renderType == "Preview": return [1, 0, 0, 0, 1, 1, 1,  1]
-#     elif renderType == "Shadow":  return [1, 1, 0, 1, 1, 1, 1,  0]
