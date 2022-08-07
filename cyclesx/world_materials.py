@@ -3,11 +3,14 @@ import bpy
 
 current_path = os.path.dirname(os.path.realpath(__file__))
 
+BASE_COLOR = (0, 0, 0)
+
 def RA2_World(world_texture_path, world_texture_name, suffix):
   tex_dir = os.path.join(os.path.dirname(current_path), world_texture_path)
   
   world = bpy.data.worlds.new('World.' + suffix)
   bpy.context.scene.world = world
+  bpy.context.scene.world.color = BASE_COLOR
   bpy.context.scene.world.use_nodes = True
   output_node = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
   world.node_tree.links.remove(output_node.inputs[0].links[0])
@@ -72,6 +75,7 @@ def RA1_World(world_texture_path, world_texture_name, suffix):
   
   world = bpy.data.worlds.new('World.' + suffix)
   bpy.context.scene.world = world
+  bpy.context.scene.world.color = BASE_COLOR
   bpy.context.scene.world.use_nodes = True
   output_node = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
   world.node_tree.links.remove(output_node.inputs[0].links[0])
@@ -136,6 +140,7 @@ def RW_World(world_texture_path, world_texture_name, suffix):
   
   world = bpy.data.worlds.new('World.' + suffix)
   bpy.context.scene.world = world
+  bpy.context.scene.world.color = (0.0998987, 0.0684781, 0.0318961)
   bpy.context.scene.world.use_nodes = True
   output_node01 = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
   output_node01.target = 'EEVEE'
@@ -193,6 +198,7 @@ def TS_World(world_texture_path, world_texture_name, suffix):
   
   world = bpy.data.worlds.new('World.' + suffix)
   bpy.context.scene.world = world
+  bpy.context.scene.world.color = (0.191202, 0.191202, 0.191202)
   bpy.context.scene.world.use_nodes = True
   output_node01 = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
   output_node01.target = 'EEVEE'
@@ -250,6 +256,7 @@ def D2K_World(world_texture_path, world_texture_name, suffix):
   
   world = bpy.data.worlds.new('World.' + suffix)
   bpy.context.scene.world = world
+  bpy.context.scene.world.color = BASE_COLOR
   bpy.context.scene.world.use_nodes = True
   output_node01 = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
   output_node01.target = 'EEVEE'
@@ -307,6 +314,7 @@ def RM_World(world_texture_path, world_texture_name, suffix):
   
   world = bpy.data.worlds.new('World.' + suffix)
   bpy.context.scene.world = world
+  bpy.context.scene.world.color = BASE_COLOR
   bpy.context.scene.world.use_nodes = True
   output_node = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
   world.node_tree.links.remove(output_node.inputs[0].links[0])
