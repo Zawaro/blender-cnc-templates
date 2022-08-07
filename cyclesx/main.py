@@ -6,9 +6,8 @@ import bpy
 current_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(current_path)
 
+from constants import TEMPLATE_VERSION, TEMPLATE_PREFIX
 from scenes import BaseScene, RA2, RA2_INF, RA2_FX, TS, TS_FX, TS_INF, RW, RW_INF, RW_FX, RA1, RA1_INF, RA1_FX, RM, RM_INF, RM_FX, D2K, D2K_INF, D2K_FX
-
-TEMPLATE_VERSION = "1_00_alpha1"
 
 # 1. Create scenes
 base_scene = BaseScene()
@@ -51,5 +50,5 @@ for file in range(len(scripts)):
 bpy.ops.file.pack_all()
 
 # 5. Output .blend file
-save_path = os.path.join(current_path, "CnC_CyclesX_{}.blend".format(TEMPLATE_VERSION))
+save_path = os.path.join(current_path, "{}_{}.blend".format(TEMPLATE_PREFIX, TEMPLATE_VERSION))
 bpy.ops.wm.save_as_mainfile(filepath=save_path)
