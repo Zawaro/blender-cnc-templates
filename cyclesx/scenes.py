@@ -9,6 +9,7 @@ sys.path.append(current_path)
 sys.path.append(parent_path)
 
 from shared import constants
+from shared.node_arrange import arrange_nodes
 
 from world_materials import D2K_World, RA1_World, RA2_World, RM_World, RW_World, TS_World
 from plane_materials import Plane_Ambient, Plane_Blue, Plane_Grey, Plane_Holdout, Plane_Shadow
@@ -291,6 +292,9 @@ class BaseScene():
 
     bpy.context.view_layer.layer_collection.children[self.full_name + " Template"].children[self.full_name + " Holdout"].exclude = True
 
+    # Arrange material nodes
+    arrange_nodes([ambient_mat.node_tree, blue_mat.node_tree, grey_mat.node_tree, holdout_mat.node_tree, shadow_mat.node_tree])
+
   def create_shadow_layer(self):
     bpy.ops.scene.view_layer_add(type='NEW')
     bpy.context.view_layer.name = "ShadowLayer"
@@ -418,6 +422,9 @@ class BaseScene():
     bpy.context.scene.node_tree.links.new(alphaover_node01.outputs[0], switch_node06.inputs[1])
     bpy.context.scene.node_tree.links.new(alphaover_node01.outputs[0], switch_node07.inputs[1])
 
+    # Arrange composite nodes
+    arrange_nodes([bpy.context.scene.node_tree])
+
 #######################
 ## -- Red Alert 2 -- ##
 #######################
@@ -443,10 +450,11 @@ class RA2(BaseScene):
     self.create_collections()
     self.create_camera(self.camera_name, self.camera_location, self.camera_rotation, self.camera_type, self.camera_ortho_scale)
     self.create_light()
-    RA2_World(self.world_texture_path, self.world_texture_name, self.suffix)
+    world = RA2_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
     self.create_shadow_layer()
     self.create_composite_nodes()
+    arrange_nodes([world.node_tree])
 
 
 class RA2_INF(RA2):
@@ -524,10 +532,11 @@ class TS(BaseScene):
     self.create_collections()
     self.create_camera(self.camera_name, self.camera_location, self.camera_rotation, self.camera_type, self.camera_ortho_scale)
     self.create_light()
-    TS_World(self.world_texture_path, self.world_texture_name, self.suffix)
+    world = TS_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
     self.create_shadow_layer()
     self.create_composite_nodes()
+    arrange_nodes([world.node_tree])
 
 class TS_INF(TS):
   name = "Tiberian Sun"
@@ -596,10 +605,11 @@ class RW(BaseScene):
     self.create_collections()
     self.create_camera(self.camera_name, self.camera_location, self.camera_rotation, self.camera_type, self.camera_ortho_scale)
     self.create_light()
-    RW_World(self.world_texture_path, self.world_texture_name, self.suffix)
+    world = RW_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
     self.create_shadow_layer()
     self.create_composite_nodes()
+    arrange_nodes([world.node_tree])
 
 class RW_INF(RW):
   name = "ReWire"
@@ -658,10 +668,11 @@ class RA1(BaseScene):
     self.create_camera(self.camera01_name, self.camera01_location, self.camera01_rotation, self.camera01_type, self.camera01_ortho_scale)
     self.create_camera(self.camera02_name, self.camera02_location, self.camera02_rotation, self.camera02_type, self.camera02_ortho_scale)
     self.create_light()
-    RA1_World(self.world_texture_path, self.world_texture_name, self.suffix)
+    world = RA1_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
     self.create_shadow_layer()
     self.create_composite_nodes()
+    arrange_nodes([world.node_tree])
 
 class RA1_INF(RA1):
   name = "Red Alert / Tiberian Dawn"
@@ -728,10 +739,11 @@ class RM(BaseScene):
     self.create_camera(self.camera01_name, self.camera01_location, self.camera01_rotation, self.camera01_type, self.camera01_ortho_scale)
     self.create_camera(self.camera02_name, self.camera02_location, self.camera02_rotation, self.camera02_type, self.camera02_ortho_scale)
     self.create_light()
-    RM_World(self.world_texture_path, self.world_texture_name, self.suffix)
+    world = RM_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
     self.create_shadow_layer()
     self.create_composite_nodes()
+    arrange_nodes([world.node_tree])
 
 class RM_INF(RM):
   name = "C&C Remastered"
@@ -798,10 +810,11 @@ class D2K(BaseScene):
     self.create_camera(self.camera01_name, self.camera01_location, self.camera01_rotation, self.camera01_type, self.camera01_ortho_scale)
     self.create_camera(self.camera02_name, self.camera02_location, self.camera02_rotation, self.camera02_type, self.camera02_ortho_scale)
     self.create_light()
-    D2K_World(self.world_texture_path, self.world_texture_name, self.suffix)
+    world = D2K_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
     self.create_shadow_layer()
     self.create_composite_nodes()
+    arrange_nodes([world.node_tree])
 
 class D2K_INF(D2K):
   name = "Dune 2000"
