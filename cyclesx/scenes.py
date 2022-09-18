@@ -148,6 +148,8 @@ class BaseScene():
     bpy.context.scene.render.resolution_y = self.render_resolution_y
     bpy.context.scene.render.use_single_layer = self.render_use_single_layer
     bpy.context.scene.view_layers['ViewLayer'].cycles.denoising_store_passes = True
+    bpy.context.scene.view_layers["ViewLayer"].use_pass_cryptomatte_asset = True
+    bpy.context.scene.view_layers["ViewLayer"].pass_cryptomatte_depth = 2
     bpy.context.scene.unit_settings.system = self.unit_settings_system
     bpy.context.scene.view_settings.view_transform = self.view_settings_view_transform
     bpy.context.scene.view_settings.look = self.view_settings_look
@@ -295,20 +297,11 @@ class BaseScene():
     # Arrange material nodes
     arrange_nodes([ambient_mat.node_tree, blue_mat.node_tree, grey_mat.node_tree, holdout_mat.node_tree, shadow_mat.node_tree])
 
-  def create_shadow_layer(self):
-    bpy.ops.scene.view_layer_add(type='NEW')
-    bpy.context.view_layer.name = "ShadowLayer"
-    bpy.context.window.view_layer = bpy.context.scene.view_layers['ShadowLayer']
-    bpy.context.view_layer.layer_collection.children[self.full_name + " Template"].children[self.full_name + " Shadow"].exclude = True
-    bpy.context.window.view_layer = bpy.context.scene.view_layers['ViewLayer']
-
   def create_composite_nodes(self):
     # Required in order to connect Render Layer node to Denoise node
     bpy.context.scene.render.engine = 'CYCLES'
     bpy.context.scene.use_nodes = True
     renderlayers_node01 = bpy.data.scenes[self.full_name].node_tree.nodes["Render Layers"]
-    renderlayers_node02 = bpy.context.scene.node_tree.nodes.new("CompositorNodeRLayers")
-    renderlayers_node02.layer = "ShadowLayer"
     composite_node01 = bpy.data.scenes[self.full_name].node_tree.nodes["Composite"]
 
     switch_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeSwitch")
@@ -367,9 +360,15 @@ class BaseScene():
 
     denoise_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeDenoise")
     denoise_node01.prefilter = 'NONE'
-    subtract_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeMixRGB")
-    subtract_node01.blend_type = 'SUBTRACT'
-    subtract_node01.inputs[0].default_value = 1
+    cryptomatte_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeCryptomatteV2")
+    cryptomatte_node01.matte_id = "Plane.shadow.{}".format(self.suffix)
+    separate_hsva_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeSepHSVA")
+    invert_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeInvert")
+    screen_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeMixRGB")
+    screen_node01.blend_type = 'SCREEN'
+    multiply_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeMixRGB")
+    multiply_node01.blend_type = 'MULTIPLY'
+    multiply_node01.inputs[0].default_value = 1
     colorramp_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeValToRGB")
     colorramp_node01.color_ramp.elements[0].position = self.colorramp_position01
     colorramp_node01.color_ramp.elements[0].color = self.colorramp_color01
@@ -397,16 +396,20 @@ class BaseScene():
     bpy.context.scene.node_tree.links.new(switch_node01.outputs[0], switch_node02.inputs[0])
 
     bpy.context.scene.node_tree.links.new(renderlayers_node01.outputs[0], denoise_node01.inputs[0])
-    bpy.context.scene.node_tree.links.new(renderlayers_node01.outputs[2], denoise_node01.inputs[1])
-    bpy.context.scene.node_tree.links.new(renderlayers_node01.outputs[3], denoise_node01.inputs[2])
+    bpy.context.scene.node_tree.links.new(renderlayers_node01.outputs[3], denoise_node01.inputs[1])
+    bpy.context.scene.node_tree.links.new(renderlayers_node01.outputs[4], denoise_node01.inputs[2])
     bpy.context.scene.node_tree.links.new(denoise_node01.outputs[0], switch_node01.inputs[0])
     bpy.context.scene.node_tree.links.new(denoise_node01.outputs[0], alpha_convert_node01.inputs[0])
     bpy.context.scene.node_tree.links.new(alpha_convert_node01.outputs[0], alphaover_node01.inputs[2])
 
-    bpy.context.scene.node_tree.links.new(renderlayers_node02.outputs[0], alpha_convert_node02.inputs[0])
-    bpy.context.scene.node_tree.links.new(alpha_convert_node02.outputs[1], subtract_node01.inputs[2])
-    bpy.context.scene.node_tree.links.new(alpha_convert_node01.outputs[1], subtract_node01.inputs[1])
-    bpy.context.scene.node_tree.links.new(subtract_node01.outputs[0], colorramp_node01.inputs[0])
+    bpy.context.scene.node_tree.links.new(renderlayers_node01.outputs[2], cryptomatte_node01.inputs[0])
+    bpy.context.scene.node_tree.links.new(cryptomatte_node01.outputs[2], separate_hsva_node01.inputs[0])
+    bpy.context.scene.node_tree.links.new(separate_hsva_node01.outputs[1], invert_node01.inputs[1])
+    bpy.context.scene.node_tree.links.new(cryptomatte_node01.outputs[1], screen_node01.inputs[1])
+    bpy.context.scene.node_tree.links.new(invert_node01.outputs[0], screen_node01.inputs[2])
+    bpy.context.scene.node_tree.links.new(screen_node01.outputs[0], multiply_node01.inputs[2])
+    bpy.context.scene.node_tree.links.new(alpha_convert_node01.outputs[1], multiply_node01.inputs[1])
+    bpy.context.scene.node_tree.links.new(multiply_node01.outputs[0], colorramp_node01.inputs[0])
     bpy.context.scene.node_tree.links.new(colorramp_node01.outputs[0], alphaover_node02.inputs[2])
 
     bpy.context.scene.node_tree.links.new(rgb_node01.outputs[0], switch_node08.inputs[0])
@@ -452,7 +455,6 @@ class RA2(BaseScene):
     self.create_light()
     world = RA2_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
-    self.create_shadow_layer()
     self.create_composite_nodes()
     arrange_nodes([world.node_tree])
 
@@ -534,7 +536,6 @@ class TS(BaseScene):
     self.create_light()
     world = TS_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
-    self.create_shadow_layer()
     self.create_composite_nodes()
     arrange_nodes([world.node_tree])
 
@@ -607,7 +608,6 @@ class RW(BaseScene):
     self.create_light()
     world = RW_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
-    self.create_shadow_layer()
     self.create_composite_nodes()
     arrange_nodes([world.node_tree])
 
@@ -670,7 +670,6 @@ class RA1(BaseScene):
     self.create_light()
     world = RA1_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
-    self.create_shadow_layer()
     self.create_composite_nodes()
     arrange_nodes([world.node_tree])
 
@@ -741,7 +740,6 @@ class RM(BaseScene):
     self.create_light()
     world = RM_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
-    self.create_shadow_layer()
     self.create_composite_nodes()
     arrange_nodes([world.node_tree])
 
@@ -812,7 +810,6 @@ class D2K(BaseScene):
     self.create_light()
     world = D2K_World(self.world_texture_path, self.world_texture_name, self.suffix)
     self.create_planes()
-    self.create_shadow_layer()
     self.create_composite_nodes()
     arrange_nodes([world.node_tree])
 
