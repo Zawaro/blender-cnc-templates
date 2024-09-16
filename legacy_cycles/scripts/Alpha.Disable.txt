@@ -1,0 +1,4 @@
+import bpy
+
+bpy.context.scene.node_tree.nodes["Alpha"].check = False
+bpy.context.scene.render.image_settings.color_mode = 'RGB'
