@@ -204,6 +204,7 @@ class BaseScene():
     bpy.context.active_object.data.contact_shadow_bias = self.sun01_contact_shadow_bias
     bpy.context.active_object.data.contact_shadow_thickness = self.sun01_contact_shadow_thickness
     bpy.context.active_object.hide_select = True
+    bpy.context.active_object.hide_render = True # CyclesX uses world sky material for sun
 
     # - Sun for rendering shadows with Shadow script
     bpy.ops.object.light_add(type='SUN', radius=1, align='WORLD', location=self.sun01_location, rotation=self.sun01_rotation, scale=(1, 1, 1))
