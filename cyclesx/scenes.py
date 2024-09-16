@@ -26,7 +26,7 @@ class BaseScene():
   cycles_device = 'GPU'
   cycles_filter_width = constants.CYCLES_FILTER_WIDTH
   cycles_max_bounces = 4
-  cycles_pixel_filter_type = 'GAUSSIAN'
+  cycles_pixel_filter_type = 'BLACKMAN_HARRIS'
   cycles_preview_samples = 10
   cycles_samples = 64
   cycles_adaptive_min_samples = 32
