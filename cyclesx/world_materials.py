@@ -12,16 +12,26 @@ def RA2_World(world_texture_path, world_texture_name, suffix):
   bpy.context.scene.world = world
   bpy.context.scene.world.color = BASE_COLOR
   bpy.context.scene.world.use_nodes = True
-  output_node = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
-  world.node_tree.links.remove(output_node.inputs[0].links[0])
+  # Output node for Cycles
+  output_node01 = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
+  output_node01.target = 'CYCLES'
+  world.node_tree.links.remove(output_node01.inputs[0].links[0])
+  # Output node for Eevee
+  output_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeOutputWorld")
+  output_node02.target = 'EEVEE'
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
+  mapping_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
+  mapping_node01.inputs[1].default_value[2] = 0.3
   mapping_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node02.inputs[1].default_value[2] = 0.3
+  mapping_node02.inputs[2].default_value[2] = -1.5708
   # Recycle the same world texture file instead of loading new one again and again
   data_image = bpy.data.images.get(world_texture_name)
   if not data_image:
     data_image = bpy.data.images.load(tex_dir)
+  tex_env_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexEnvironment")
+  tex_env_node.image = data_image
+  tex_env_node.image.use_fake_user = True
   huesat_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeHueSaturation")
   huesat_node.inputs[1].default_value = 0.75
   huesat_node.inputs[2].default_value = 0.9
@@ -30,8 +40,10 @@ def RA2_World(world_texture_path, world_texture_name, suffix):
   background_node02.inputs[0].default_value = (1, 1, 1, 1)
   background_node03 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeBackground")
   background_node03.inputs[0].default_value = (0, 0, 1, 1)
+  background_node04 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeBackground")
   mixshader_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMixShader")
   mixshader_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMixShader")
+  mixshader_node03 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMixShader")
   mixrbg_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMixRGB")
   mixrbg_node.inputs[1].default_value = (0, 0, 0, 1)
   colorramp_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeValToRGB")
@@ -56,26 +68,32 @@ def RA2_World(world_texture_path, world_texture_name, suffix):
   tex_noise_node.inputs[3].default_value = 5
   tex_noise_node.inputs[5].default_value = 0.5
 
-  world.node_tree.links.new(mixshader_node01.outputs[0], output_node.inputs[0])
-  world.node_tree.links.new(mixshader_node02.outputs[0], mixshader_node01.inputs[2])
-  world.node_tree.links.new(lightpath_node.outputs[0], mixshader_node02.inputs[0])
-  world.node_tree.links.new(lightpath_node.outputs[3], mixshader_node01.inputs[0])
+  ## Cycles World
+  world.node_tree.links.new(mixshader_node01.outputs[0], output_node01.inputs[0])
+  world.node_tree.links.new(lightpath_node.outputs[0], mixshader_node01.inputs[0])
+  world.node_tree.links.new(mixshader_node02.outputs[0], mixshader_node01.inputs[1])
+  world.node_tree.links.new(background_node03.outputs[0], mixshader_node01.inputs[2])
+  world.node_tree.links.new(background_node02.outputs[0], mixshader_node02.inputs[2])
   world.node_tree.links.new(background_node01.outputs[0], mixshader_node02.inputs[1])
-  world.node_tree.links.new(background_node03.outputs[0], mixshader_node02.inputs[2])
-  world.node_tree.links.new(background_node02.outputs[0], mixshader_node01.inputs[1])
-  world.node_tree.links.new(gamma_node01.outputs[0], background_node01.inputs[0])
-  world.node_tree.links.new(gamma_node02.outputs[0], background_node02.inputs[0])
-  world.node_tree.links.new(huesat_node.outputs[0], gamma_node02.inputs[0])
-  world.node_tree.links.new(mixrbg_node.outputs[0], gamma_node01.inputs[0])
-  world.node_tree.links.new(mixrbg_node.outputs[0], huesat_node.inputs[0])
+  world.node_tree.links.new(huesat_node.outputs[0], background_node01.inputs[0])
+  world.node_tree.links.new(tex_sky_node.outputs[0], huesat_node.inputs[4])
 
-  world.node_tree.links.new(tex_env_node.outputs[0], mixrbg_node.inputs[1])
-  world.node_tree.links.new(mapping_node01.outputs[0], tex_env_node.inputs[0])
+  world.node_tree.links.new(mixrbg_node.outputs[0], mixshader_node02.inputs[0])
+  world.node_tree.links.new(colorramp_node01.outputs[0], mixrbg_node.inputs[0])
+  world.node_tree.links.new(colorramp_node02.outputs[0], mixrbg_node.inputs[2])
+  world.node_tree.links.new(separate_rgb_node.outputs[2], colorramp_node01.inputs[0])
+  world.node_tree.links.new(tex_noise_node.outputs[0], colorramp_node02.inputs[0])
+  world.node_tree.links.new(mapping_node01.outputs[0], separate_rgb_node.inputs[0])
+  world.node_tree.links.new(mapping_node01.outputs[0], tex_noise_node.inputs[0])
   world.node_tree.links.new(tex_coord_node.outputs[0], mapping_node01.inputs[0])
-
-  world.node_tree.links.new(colorramp_node.outputs[0], mixrbg_node.inputs[2])
-  world.node_tree.links.new(separate_rgb_node.outputs[2], colorramp_node.inputs[0])
-  world.node_tree.links.new(mapping_node02.outputs[0], separate_rgb_node.inputs[0])
+  
+  ## Eevee World
+  world.node_tree.links.new(mixshader_node03.outputs[0], output_node02.inputs[0])
+  world.node_tree.links.new(lightpath_node.outputs[0], mixshader_node03.inputs[0])
+  world.node_tree.links.new(background_node04.outputs[0], mixshader_node03.inputs[1])
+  world.node_tree.links.new(background_node03.outputs[0], mixshader_node03.inputs[2])
+  world.node_tree.links.new(tex_env_node.outputs[0], background_node04.inputs[0])
+  world.node_tree.links.new(mapping_node02.outputs[0], tex_env_node.inputs[0])
   world.node_tree.links.new(tex_coord_node.outputs[0], mapping_node02.inputs[0])
 
   return world
