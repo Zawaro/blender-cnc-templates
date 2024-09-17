@@ -49,6 +49,16 @@ for file in range(len(scripts)):
 # 4. Pack assets
 bpy.ops.file.pack_all()
 
-# 5. Output .blend file
+# 5. Remove previous .blender file
 save_path = os.path.join(current_path, "{}_{}.blend".format(TEMPLATE_PREFIX, TEMPLATE_VERSION))
+if os.path.exists(save_path):
+  os.remove(save_path)
+
+# 6. Output .blend file
 bpy.ops.wm.save_as_mainfile(filepath=save_path)
+
+# 7. Compress .blend file
+zip_path = os.path.join(current_path, "{}_{}.zip".format(TEMPLATE_PREFIX, TEMPLATE_VERSION))
+if os.path.exists(zip_path):
+  os.remove(zip_path)
+os.system("bash -c 'zip -r {} {}'".format(zip_path, save_path))
