@@ -1,0 +1,47 @@
+import bpy
+
+bpy.context.scene.render.engine = "BLENDER_EEVEE"
+
+suffix = "RA2.INF"
+
+scenename = bpy.context.scene.name
+if scenename == "Red Alert 2": suffix = "RA2"
+elif scenename == "Red Alert 2 - Infantry": suffix = "RA2.INF"
+elif scenename == "Red Alert 2 - Effects": suffix = "RA2.FX"
+elif scenename == "Tiberian Sun": suffix = "TS"
+elif scenename == "Tiberian Sun - Infantry": suffix = "TS.INF"
+elif scenename == "Tiberian Sun - Effects": suffix = "TS.FX"
+elif scenename == "ReWire": suffix = "RW"
+elif scenename == "ReWire - Infantry": suffix = "RW.INF"
+elif scenename == "ReWire - Effects": suffix = "RW.FX"
+elif scenename == "Red Alert / Tiberian Dawn": suffix = "RA1"
+elif scenename == "Red Alert / Tiberian Dawn - Infantry": suffix = "RA1.INF"
+elif scenename == "Red Alert / Tiberian Dawn - Effects": suffix = "RA1.FX"
+elif scenename == "Dune 2000": suffix = "D2K"
+elif scenename == "Dune 2000 - Infantry": suffix = "D2K.INF"
+elif scenename == "Dune 2000 - Effects": suffix = "D2K.FX"
+elif scenename == "C&C Remastered": suffix = "RM"
+elif scenename == "C&C Remastered - Infantry": suffix = "RM.INF"
+elif scenename == "C&C Remastered - Effects": suffix = "RM.FX"
+
+bpy.data.objects["Plane.holdout." + suffix].hide_render = True
+bpy.data.objects["Plane.holdout2." + suffix].hide_render = True
+bpy.data.objects["Plane.shadow." + suffix].hide_render = False
+bpy.data.objects["Plane.shadow2." + suffix].hide_render = True
+bpy.data.objects["Plane.blue." + suffix].hide_render = True
+bpy.data.objects["Plane.grey." + suffix].hide_render = True
+bpy.data.objects["Plane.ambient." + suffix].hide_render = True
+bpy.data.objects["Sun." + suffix].hide_render = True
+bpy.data.objects["Sun.shadow." + suffix].hide_render = False
+bpy.context.scene.cycles.filter_width = 0.01
+bpy.context.scene.render.filter_size = 0.01
+bpy.context.scene.world.use_nodes = False
+bpy.context.scene.eevee.use_gtao = False
+bpy.context.scene.render.use_single_layer = False
+bpy.context.scene.node_tree.nodes["Object"].check = False
+bpy.context.scene.node_tree.nodes["Buildup.Cycles"].check = False
+bpy.context.scene.node_tree.nodes["Buildup.Eevee"].check = False
+bpy.context.scene.node_tree.nodes["Shadow.Cycles"].check = False
+bpy.context.scene.node_tree.nodes["Shadow.Eevee"].check = True
+bpy.context.scene.node_tree.nodes["Preview.Cycles"].check = False
+bpy.context.scene.node_tree.nodes["Preview.Eevee"].check = False
