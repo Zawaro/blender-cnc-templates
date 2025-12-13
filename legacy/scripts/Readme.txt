@@ -1,6 +1,6 @@
 # blender-cnc-templates
 
-CnC Cycles X / Eevee Template version 1.00 alpha 1 for Blender 3.x
+CnC Template version 1.00 alpha 1 for Blender 2.79b
 Created by: Ari Oravasaari / DonutArnold / Zawaro
 Contact: Personal message 'donutarnold' in PPMSite.com or email: donutarnold@gmail.com
 

@@ -2,3 +2,5 @@ env/
 __pycache__
 __pycache__/
 .blend
+.venv/
+.build_venv/

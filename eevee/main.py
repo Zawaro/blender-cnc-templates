@@ -7,7 +7,27 @@ current_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(current_path)
 
 from constants import TEMPLATE_VERSION, TEMPLATE_PREFIX
-from scenes import BaseScene, RA2, RA2_INF, RA2_FX, TS, TS_FX, TS_INF, RW, RW_INF, RW_FX, RA1, RA1_INF, RA1_FX, RM, RM_INF, RM_FX, D2K, D2K_INF, D2K_FX
+from scenes import (
+    BaseScene,
+    RA2,
+    RA2_INF,
+    RA2_FX,
+    TS,
+    TS_FX,
+    TS_INF,
+    RW,
+    RW_INF,
+    RW_FX,
+    RA1,
+    RA1_INF,
+    RA1_FX,
+    RM,
+    RM_INF,
+    RM_FX,
+    D2K,
+    D2K_INF,
+    D2K_FX,
+)
 
 # 1. Create scenes
 base_scene = BaseScene()
@@ -35,20 +55,22 @@ base_scene.cleanup()
 ra2_scene.select_scene()
 
 # 3. Add template scripts
-scripts = os.listdir(os.path.join(current_path, 'scripts'))
+scripts = os.listdir(os.path.join(current_path, "scripts"))
 for file in range(len(scripts)):
-  filename = scripts[file]
-  script_name = filename.replace('.txt', '')
-  print(script_name)
-  with open(os.path.join(current_path, 'scripts', scripts[file]), 'r') as script:
-    bpy.ops.text.new()
-    text = bpy.data.texts["Text"]
-    text.name = script_name
-    text.write(script.read())
+    filename = scripts[file]
+    script_name = filename.replace(".txt", "")
+    print(script_name)
+    with open(os.path.join(current_path, "scripts", scripts[file]), "r") as script:
+        bpy.ops.text.new()
+        text = bpy.data.texts["Text"]
+        text.name = script_name
+        text.write(script.read())
 
 # 4. Pack assets
 bpy.ops.file.pack_all()
 
 # 5. Output .blend file
-save_path = os.path.join(current_path, "{}_{}.blend".format(TEMPLATE_PREFIX, TEMPLATE_VERSION))
+save_path = os.path.join(
+    current_path, "{}_{}.blend".format(TEMPLATE_PREFIX, TEMPLATE_VERSION)
+)
 bpy.ops.wm.save_as_mainfile(filepath=save_path)
