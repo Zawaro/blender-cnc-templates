@@ -167,6 +167,12 @@ It helps you to create nice damage frames for buildings.
 - 4. VERSION HISTORY -
 ----------------------
 
+1.00 alpha 3
+- Rewrote build script and fixes a lot of bugs etc.
+
+1.00 alpha 2
+- Rewrote world materials 
+
 1.00 alpha 1
 -Rewritten templates as python scripts
 
