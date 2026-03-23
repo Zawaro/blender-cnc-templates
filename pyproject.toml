@@ -4,3 +4,4 @@ version = "1.0.0"
 
 [tool.ruff]
 indent-width = 2
+line-length = 200

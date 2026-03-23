@@ -1,6 +1,18 @@
-env/
+# General development environment variables, files and paths
+env
 __pycache__
 __pycache__/
 .blend
-.venv/
-.build_venv/
+.venv
+.build_venv
+
+# Generated Blender .txt scripts
+eevee_next/scripts
+eevee/scripts
+cyclesx/scripts
+future_five/scripts
+legacy/scripts
+legacy_cycles/scripts
+
+# Build releases
+release
