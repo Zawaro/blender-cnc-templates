@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
-echo "=== Blender Addon Build Script (Launcher‑aware with per‑version deps) ==="
+echo "=== Blender Addon Build Script (Launcher-aware with per-version venv) ==="
 echo
 
 # --- 1) Prompt for engine group / version folder ---
-engines=("legacy" "legacy_cycles" "eevee" "cyclesx" "eevee_next" "future_next")
+engines=("legacy" "legacy_cycles" "eevee" "cyclesx" "eevee_next" "future_five")
 echo "Select Blender engine group:"
 select engine in "${engines[@]}"; do
     [[ -n "$engine" ]] && break
@@ -19,7 +19,7 @@ case "$engine" in
     "eevee")          ver_min=2.80; ver_max=2.93 ;;
     "cyclesx")        ver_min=3.0;  ver_max=3.6 ;;
     "eevee_next")     ver_min=4.1;  ver_max=4.5 ;;
-    "future_next")    ver_min=5.0;  ver_max=6.0 ;;
+    "future_five")    ver_min=5.0;  ver_max=6.0 ;;
 esac
 
 echo "Searching for Blender versions matching $ver_min → $ver_max …"
@@ -97,27 +97,27 @@ ver_dir="./$engine"
 echo "Using version folder: $ver_dir"
 echo
 
-# --- 4) Setup uv environment ---
-if ! command -v uv &>/dev/null; then
-    echo "Installing uv (Python package manager)..."
-    python3 -m pip install uv
+# --- 4) Ensure .venv exists for this version ---
+if [[ ! -d "$ver_dir/.venv" ]]; then
+    echo "No .venv found for $engine — running bootstrap.sh"
+    ./bootstrap.sh
 fi
 
-venv_dir=".build_venv"
-[[ ! -d "$venv_dir" ]] && uv venv "$venv_dir"
-source "$venv_dir/bin/activate"
+# Activate the version’s .venv
+echo "Activating $ver_dir/.venv"
+source "$ver_dir/.venv/bin/activate"
 
 # --- 5) Install dependencies from version folder ---
 if [[ -f "$ver_dir/requirements.txt" ]]; then
     echo "Installing dependencies from $ver_dir/requirements.txt …"
-    uv pip install -r "$ver_dir/requirements.txt"  # pip‑compatible interface :contentReference[oaicite:1]{index=1}
+    uv pip install -r "$ver_dir/requirements.txt"
 else
-    echo "No requirements.txt found in $ver_dir — skipping dependency install."
+    echo "No requirements.txt found in $ver_dir — skipping."
 fi
 
 echo
 
-# --- 6) Run per‑version generate_scripts.py ---
+# --- 6) Run generate_scripts.py ---
 if [[ -f "$ver_dir/generate_scripts.py" ]]; then
     echo "Running $ver_dir/generate_scripts.py …"
     uv run python "$ver_dir/generate_scripts.py"
@@ -133,6 +133,22 @@ if [[ -f "$ver_dir/main.py" ]]; then
     "$blender_exec" -b --python "$ver_dir/main.py"
 else
     echo "No main.py in $ver_dir — nothing to run."
+fi
+
+# --- 8) Archive generated .blend files using zip if available, otherwise install py7zr Python lib ---
+if hash zip > /dev/null 2>/dev/null; then
+    for f in release/*.blend; do
+        base=${f%%.*}
+        zip_file="${base}.7z"
+        if [ ! -e "$zip_file" ]; then
+            echo "Creating archive $zip_file …"
+            zip -j "$zip_file" "$f"
+        else
+            echo "Archive $zip_file already exists – skipping."
+        fi
+    done
+else
+    echo "No zip utility found – install via your package manager (e.g., apt‑get install zip)."
 fi
 
 echo
