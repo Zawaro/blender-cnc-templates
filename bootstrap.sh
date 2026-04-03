@@ -11,7 +11,7 @@ versions=(
   "eevee"
   "cyclesx"
   "eevee_next"
-  "future_five"
+  "hi_five"
 )
 
 # Make sure uv is installed

@@ -5,7 +5,7 @@ echo "=== Blender Addon Build Script (Launcher-aware with per-version venv) ==="
 echo
 
 # --- 1) Prompt for engine group / version folder ---
-engines=("legacy" "legacy_cycles" "eevee" "cyclesx" "eevee_next" "future_five")
+engines=("legacy" "legacy_cycles" "eevee" "cyclesx" "eevee_next" "hi_five")
 echo "Select Blender engine group:"
 select engine in "${engines[@]}"; do
     [[ -n "$engine" ]] && break
@@ -19,7 +19,7 @@ case "$engine" in
     "eevee")          ver_min=2.80; ver_max=2.93 ;;
     "cyclesx")        ver_min=3.0;  ver_max=3.6 ;;
     "eevee_next")     ver_min=4.1;  ver_max=4.5 ;;
-    "future_five")    ver_min=5.0;  ver_max=6.0 ;;
+    "hi_five")    ver_min=5.0;  ver_max=6.0 ;;
 esac
 
 echo "Searching for Blender versions matching $ver_min → $ver_max …"
