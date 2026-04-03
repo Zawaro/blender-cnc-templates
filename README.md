@@ -14,7 +14,7 @@ Each version has its own folder with scripts, materials and a small build script
 | 2.80            | `eevee`         | Eevee engine                |
 | 3.00            | `cyclesx`       | Cycles X                    |
 | 4.2             | `eevee_next`    | Eevee Next                  |
-| 5.0             | `future_five`   | Latest stable release       |
+| 5.0             | `hi_five`   | Latest stable release       |
 
 ---
 
