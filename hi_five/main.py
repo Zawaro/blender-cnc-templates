@@ -1,4 +1,4 @@
-# future_five/main.py
+# hi_five/main.py
 """
 Build script for the **Future Five** (Blender 5.0) template.
 

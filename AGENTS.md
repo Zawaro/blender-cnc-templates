@@ -34,7 +34,7 @@ The project uses a version-per-folder layout for supported Blender versions:
 ./eevee/               # Blender 2.80+
 ./cyclesx/             # Blender 3.0+
 ./eevee_next/          # Blender 4.2+
-./future_five/         # Blender 5.0+
+./hi_five/         # Blender 5.0+
 
 ```
 
