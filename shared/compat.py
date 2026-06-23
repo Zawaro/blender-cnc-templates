@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
+from typing import Dict, Optional, Tuple
 
 
 class BaseCompat(ABC):
@@ -12,7 +11,7 @@ class BaseCompat(ABC):
   instead of calling bpy directly for version-varying operations.
   """
 
-  VERSION: tuple[int, ...] = (0, 0, 0)
+  VERSION = (0, 0, 0)
 
   # -- Node type names (class name strings for nodes.new()) --
 
@@ -33,6 +32,18 @@ class BaseCompat(ABC):
   @property
   @abstractmethod
   def SEPARATE_RGB_NODE(self) -> str: ...
+
+  # -- Compositor node types (some nodes differ between shader/compositor trees) --
+
+  @property
+  def COMPOSITOR_MATH_NODE(self) -> str:
+    """Math node type for compositor node trees."""
+    return "CompositorNodeMath"
+
+  @property
+  def COMPOSITOR_VALUATORGB_NODE(self) -> str:
+    """ColorRamp node type for compositor node trees."""
+    return "CompositorNodeValToRGB"
 
   # -- Compositor access --
 
@@ -73,7 +84,7 @@ class BaseCompat(ABC):
     """Return the input index for the color channel on CompositorNodeInvert."""
 
   @abstractmethod
-  def get_mix_color_inputs(self) -> tuple[int, int]:
+  def get_mix_color_inputs(self) -> Tuple[int, int]:
     """Return (input_a, input_b) indices for the two color inputs on the mix node."""
 
   @abstractmethod
@@ -189,7 +200,7 @@ class BaseCompat(ABC):
     """Return the sky texture density property name."""
 
   @abstractmethod
-  def get_sky_type_value(self) -> str | None:
+  def get_sky_type_value(self) -> Optional[str]:
     """Return the sky_type value, or None if not applicable."""
 
   # -- Generate scripts --
@@ -212,6 +223,24 @@ class BaseCompat(ABC):
   def has_collections(self) -> bool:
     """Whether this version creates collections."""
 
+  # -- Compositor node availability --
+
+  def has_cryptomatte(self) -> bool:
+    """Whether CompositorNodeCryptomatteV2 is available."""
+    return True
+
+  def has_shader_to_rgb(self) -> bool:
+    """Whether ShaderNodeShaderToRGB is available."""
+    return True
+
+  def get_shadow_pass_index(self) -> int:
+    """Return the Object Index pass value used for the shadow plane."""
+    return 1
+
+  def get_indexob_output_index(self) -> int:
+    """Return the Render Layers output index for IndexOB."""
+    return 2
+
 
 def get_compat(major: int, minor: int) -> BaseCompat:
   """Return the compat instance for the given Blender version."""
@@ -230,4 +259,4 @@ def get_compat(major: int, minor: int) -> BaseCompat:
   elif major >= 5:
     from .compat_500 import Compat500
     return Compat500()
-  raise ValueError(f"No compat class for Blender {major}.{minor}")
+  raise ValueError("No compat class for Blender {}.{}".format(major, minor))

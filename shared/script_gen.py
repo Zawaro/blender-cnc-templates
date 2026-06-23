@@ -1,25 +1,23 @@
-from __future__ import annotations
-
 import os
-from dataclasses import dataclass
+from typing import Dict, Optional, Tuple
 
 from . import constants
 from .compat import BaseCompat
 from .scene_names import get_suffix_if_elif
 
 
-@dataclass
 class PlaneVisibility:
-  holdout: bool
-  holdout2: bool
-  shadow: bool
-  shadow2: bool
-  blue: bool
-  grey: bool
-  ambient: bool
+  def __init__(self, holdout, holdout2, shadow, shadow2, blue, grey, ambient):
+    self.holdout = holdout
+    self.holdout2 = holdout2
+    self.shadow = shadow
+    self.shadow2 = shadow2
+    self.blue = blue
+    self.grey = grey
+    self.ambient = ambient
 
 
-VISIBILITY: dict[str, dict[str, PlaneVisibility]] = {
+VISIBILITY = {
   "CYCLES": {
     "Reset": PlaneVisibility(True, True, True, True, True, False, True),
     "Buildup": PlaneVisibility(True, False, True, True, True, True, True),
@@ -37,7 +35,7 @@ VISIBILITY: dict[str, dict[str, PlaneVisibility]] = {
 }
 
 
-def _render_type_booleans(render_type: str, engine_key: str) -> dict[str, str]:
+def _render_type_booleans(render_type: str, engine_key: str) -> Dict[str, str]:
   is_object = "True" if render_type == "Object" else "False"
   is_buildup_cycles = "True" if render_type == "Buildup" and engine_key == "CYCLES" else "False"
   is_buildup_eevee = "True" if render_type == "Buildup" and engine_key != "CYCLES" else "False"
@@ -69,22 +67,22 @@ def generate_render_script(compat: BaseCompat, engine_key: str, render_type: str
   lines = [
     "import bpy",
     "",
-    f'bpy.context.scene.render.engine = "{engine_str}"',
+    'bpy.context.scene.render.engine = "{}"'.format(engine_str),
     "",
     get_suffix_if_elif(),
     "",
-    f'bpy.data.objects["Plane.holdout." + suffix].hide_render = {vis.holdout}',
-    f'bpy.data.objects["Plane.holdout2." + suffix].hide_render = {vis.holdout2}',
-    f'bpy.data.objects["Plane.shadow." + suffix].hide_render = {vis.shadow}',
-    f'bpy.data.objects["Plane.shadow2." + suffix].hide_render = {vis.shadow2}',
-    f'bpy.data.objects["Plane.blue." + suffix].hide_render = {vis.blue}',
-    f'bpy.data.objects["Plane.grey." + suffix].hide_render = {vis.grey}',
-    f'bpy.data.objects["Plane.ambient." + suffix].hide_render = {vis.ambient}',
-    f'bpy.data.objects["Sun." + suffix].hide_render = {"True" if render_type == "Shadow" and engine_key != "CYCLES" else "False"}',
+    'bpy.data.objects["Plane.holdout." + suffix].hide_render = {}'.format(vis.holdout),
+    'bpy.data.objects["Plane.holdout2." + suffix].hide_render = {}'.format(vis.holdout2),
+    'bpy.data.objects["Plane.shadow." + suffix].hide_render = {}'.format(vis.shadow),
+    'bpy.data.objects["Plane.shadow2." + suffix].hide_render = {}'.format(vis.shadow2),
+    'bpy.data.objects["Plane.blue." + suffix].hide_render = {}'.format(vis.blue),
+    'bpy.data.objects["Plane.grey." + suffix].hide_render = {}'.format(vis.grey),
+    'bpy.data.objects["Plane.ambient." + suffix].hide_render = {}'.format(vis.ambient),
+    'bpy.data.objects["Sun." + suffix].hide_render = {}'.format("True" if render_type == "Shadow" and engine_key != "CYCLES" else "False"),
     "",
-    f"bpy.context.scene.cycles.filter_width = {cycles_filter}",
-    f"bpy.context.scene.render.filter_size = {eevee_filter}",
-    f"bpy.context.scene.render.use_single_layer = {render_type not in ('Shadow',)}",
+    "bpy.context.scene.cycles.filter_width = {}".format(cycles_filter),
+    "bpy.context.scene.render.filter_size = {}".format(eevee_filter),
+    "bpy.context.scene.render.use_single_layer = {}".format(render_type not in ('Shadow',)),
   ]
 
   bools = _render_type_booleans(render_type, engine_key)
@@ -98,7 +96,7 @@ def generate_render_script(compat: BaseCompat, engine_key: str, render_type: str
   return "\n".join(lines)
 
 
-def generate_alpha_scripts(compat: BaseCompat) -> tuple[str, str]:
+def generate_alpha_scripts(compat: BaseCompat) -> Tuple[str, str]:
   disable = "\n".join([
     "import bpy",
     "",
@@ -121,7 +119,7 @@ RENDER_TYPES = ["Reset", "Buildup", "Object", "Preview", "Shadow"]
 ENGINE_KEYS = ["CYCLES", "EEVEE"]
 
 
-def generate_all_scripts(compat: BaseCompat, output_path: str, readme_path: str | None = None) -> None:
+def generate_all_scripts(compat: BaseCompat, output_path: str, readme_path: Optional[str] = None) -> None:
   os.makedirs(output_path, exist_ok=True)
 
   for engine_key in ENGINE_KEYS:
@@ -129,7 +127,7 @@ def generate_all_scripts(compat: BaseCompat, output_path: str, readme_path: str 
       script = generate_render_script(compat, engine_key, render_type)
       engine_str = compat.get_engine_string(engine_key)
       display_engine = "Cycles" if engine_str == "CYCLES" else "Eevee"
-      filename = f"{display_engine}.Render.{render_type}.txt"
+      filename = "{}.Render.{}.txt".format(display_engine, render_type)
       with open(os.path.join(output_path, filename), "w") as f:
         f.write(script)
 

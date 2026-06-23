@@ -2,12 +2,14 @@ import os
 import bpy
 
 current_path = os.path.dirname(os.path.realpath(__file__))
+project_root = os.path.dirname(current_path)
 
 BASE_COLOR = (0, 0, 0)
 
-def RA2_World(world_texture_path, world_texture_name, suffix):
-  tex_dir = os.path.join(os.path.dirname(current_path), world_texture_path)
-  
+
+def RA2_World(suffix, props, compat):
+  tex_dir = os.path.join(project_root, props["world_texture_path"])
+
   world = bpy.data.worlds.new('World.' + suffix)
   bpy.context.scene.world = world
   bpy.context.scene.world.color = BASE_COLOR
@@ -20,8 +22,7 @@ def RA2_World(world_texture_path, world_texture_name, suffix):
   mapping_node01.inputs[2].default_value[2] = -1.22173
   mapping_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
   mapping_node02.inputs[1].default_value[2] = 0.3
-  # Recycle the same world texture file instead of loading new one again and again
-  data_image = bpy.data.images.get(world_texture_name)
+  data_image = bpy.data.images.get(props["world_texture_name"])
   if not data_image:
     data_image = bpy.data.images.load(tex_dir)
   tex_env_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexEnvironment")
@@ -72,9 +73,14 @@ def RA2_World(world_texture_path, world_texture_name, suffix):
 
   return world
 
-def RA1_World(world_texture_path, world_texture_name, suffix):
-  tex_dir = os.path.join(os.path.dirname(current_path), world_texture_path)
-  
+
+def RA2_INF_World(suffix, props, compat):
+  return RA2_World(suffix, props, compat)
+
+
+def RA1_World(suffix, props, compat):
+  tex_dir = os.path.join(project_root, props["world_texture_path"])
+
   world = bpy.data.worlds.new('World.' + suffix)
   bpy.context.scene.world = world
   bpy.context.scene.world.color = BASE_COLOR
@@ -87,8 +93,7 @@ def RA1_World(world_texture_path, world_texture_name, suffix):
   mapping_node01.inputs[2].default_value[2] = -1.22173
   mapping_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
   mapping_node02.inputs[1].default_value[2] = 0.3
-  # Recycle the same world texture file instead of loading new one again and again
-  data_image = bpy.data.images.get(world_texture_name)
+  data_image = bpy.data.images.get(props["world_texture_name"])
   if not data_image:
     data_image = bpy.data.images.load(tex_dir)
   tex_env_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexEnvironment")
@@ -139,9 +144,10 @@ def RA1_World(world_texture_path, world_texture_name, suffix):
 
   return world
 
-def RW_World(world_texture_path, world_texture_name, suffix):
-  tex_dir = os.path.join(os.path.dirname(current_path), world_texture_path)
-  
+
+def RW_World(suffix, props, compat):
+  tex_dir = os.path.join(project_root, props["world_texture_path"])
+
   world = bpy.data.worlds.new('World.' + suffix)
   bpy.context.scene.world = world
   bpy.context.scene.world.color = (0.0998987, 0.0684781, 0.0318961)
@@ -155,8 +161,7 @@ def RW_World(world_texture_path, world_texture_name, suffix):
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
   mapping_node.inputs[2].default_value[2] = -1.22173
-  # Recycle the same world texture file instead of loading new one again and again
-  data_image = bpy.data.images.get(world_texture_name)
+  data_image = bpy.data.images.get(props["world_texture_name"])
   if not data_image:
     data_image = bpy.data.images.load(tex_dir)
   tex_env_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexEnvironment")
@@ -199,9 +204,10 @@ def RW_World(world_texture_path, world_texture_name, suffix):
 
   return world
 
-def TS_World(world_texture_path, world_texture_name, suffix):
-  tex_dir = os.path.join(os.path.dirname(current_path), world_texture_path)
-  
+
+def TS_World(suffix, props, compat):
+  tex_dir = os.path.join(project_root, props["world_texture_path"])
+
   world = bpy.data.worlds.new('World.' + suffix)
   bpy.context.scene.world = world
   bpy.context.scene.world.color = (0.191202, 0.191202, 0.191202)
@@ -215,8 +221,7 @@ def TS_World(world_texture_path, world_texture_name, suffix):
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
   mapping_node.inputs[2].default_value[2] = -1.22173
-  # Recycle the same world texture file instead of loading new one again and again
-  data_image = bpy.data.images.get(world_texture_name)
+  data_image = bpy.data.images.get(props["world_texture_name"])
   if not data_image:
     data_image = bpy.data.images.load(tex_dir)
   tex_env_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexEnvironment")
@@ -259,9 +264,10 @@ def TS_World(world_texture_path, world_texture_name, suffix):
 
   return world
 
-def D2K_World(world_texture_path, world_texture_name, suffix):
-  tex_dir = os.path.join(os.path.dirname(current_path), world_texture_path)
-  
+
+def D2K_World(suffix, props, compat):
+  tex_dir = os.path.join(project_root, props["world_texture_path"])
+
   world = bpy.data.worlds.new('World.' + suffix)
   bpy.context.scene.world = world
   bpy.context.scene.world.color = BASE_COLOR
@@ -275,8 +281,7 @@ def D2K_World(world_texture_path, world_texture_name, suffix):
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
   mapping_node.inputs[2].default_value[2] = -1.22173
-  # Recycle the same world texture file instead of loading new one again and again
-  data_image = bpy.data.images.get(world_texture_name)
+  data_image = bpy.data.images.get(props["world_texture_name"])
   if not data_image:
     data_image = bpy.data.images.load(tex_dir)
   tex_env_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexEnvironment")
@@ -319,9 +324,10 @@ def D2K_World(world_texture_path, world_texture_name, suffix):
 
   return world
 
-def RM_World(world_texture_path, world_texture_name, suffix):
-  tex_dir = os.path.join(os.path.dirname(current_path), world_texture_path)
-  
+
+def RM_World(suffix, props, compat):
+  tex_dir = os.path.join(project_root, props["world_texture_path"])
+
   world = bpy.data.worlds.new('World.' + suffix)
   bpy.context.scene.world = world
   bpy.context.scene.world.color = BASE_COLOR
@@ -334,8 +340,7 @@ def RM_World(world_texture_path, world_texture_name, suffix):
   mapping_node01.inputs[2].default_value[2] = -1.22173
   mapping_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
   mapping_node02.inputs[1].default_value[2] = 0.3
-  # Recycle the same world texture file instead of loading new one again and again
-  data_image = bpy.data.images.get(world_texture_name)
+  data_image = bpy.data.images.get(props["world_texture_name"])
   if not data_image:
     data_image = bpy.data.images.load(tex_dir)
   tex_env_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexEnvironment")
@@ -385,3 +390,14 @@ def RM_World(world_texture_path, world_texture_name, suffix):
   world.node_tree.links.new(tex_coord_node.outputs[0], mapping_node02.inputs[0])
 
   return world
+
+
+WORLD_CLASS_MAP = {
+  "RA2": RA2_World,
+  "RA2_INF": RA2_INF_World,
+  "RA1": RA1_World,
+  "RW": RW_World,
+  "TS": TS_World,
+  "D2K": D2K_World,
+  "RM": RM_World,
+}

@@ -10,7 +10,8 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from shared.compat import get_compat
 from shared.scenes import ALL_SCENE_CLASSES, register_world
 from shared.build_utils import load_scripts, setup_text_editor, save_blend
-from constants import TEMPLATE_PREFIX, TEMPLATE_VERSION
+from shared.constants import TEMPLATE_VERSION
+from constants import TEMPLATE_PREFIX
 
 compat = get_compat(2, 79)
 

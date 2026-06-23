@@ -1,46 +1,21 @@
 import os
-from typing import TypedDict
 
 import bpy
-
-from . import constants
 
 BASE_COLOR = (0, 0, 0)
 
 
-class WorldProperties(TypedDict):
-  world_texture_path: str
-  world_texture_name: str
-
-
-class BaseProperties(WorldProperties):
-  suffix: str
-  huesat_node01_input0: float
-  huesat_node01_input1: float
-  huesat_node01_input2: float
-  huesat_node02_input0: float
-  huesat_node02_input1: float
-  huesat_node02_input2: float
-  tex_sky_node_sun_size: float
-  tex_sky_node_sun_intensity: float
-  tex_sky_node_sun_elevation: float
-  tex_sky_node_sun_rotation: float
-  tex_sky_node_altitude: float
-  tex_sky_node_air_density: float
-  tex_sky_node_dust_density: float
-  tex_sky_node_ozone_density: float
-  tex_noise_node_input2: float
-  tex_noise_node_input3: float
-  tex_noise_node_input5: float
-
-
-def Base_World(props: BaseProperties, compat):
+def Base_World(props, compat):
   project_root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
   tex_dir = os.path.join(project_root, props["world_texture_path"])
 
   world = bpy.data.worlds.new("World." + props["suffix"])
+  world.use_nodes = True
   bpy.context.scene.world = world
-  bpy.context.scene.world.color = BASE_COLOR
+  if hasattr(world, "color"):
+    world.color = BASE_COLOR
+  elif hasattr(bpy.context.scene, "world") and hasattr(bpy.context.scene.world, "horizon_color"):
+    bpy.context.scene.world.horizon_color = BASE_COLOR
 
   tree = world.node_tree
   nodes = tree.nodes

@@ -1,4 +1,4 @@
-from __future__ import annotations
+from typing import Optional, Tuple
 
 from .compat import BaseCompat
 
@@ -26,10 +26,16 @@ class Compat420(BaseCompat):
     return scene.node_tree.nodes["Composite"]
 
   def add_group_input(self, group, socket_type: str, name: str) -> None:
-    group.inputs.new(socket_type, name)
+    if hasattr(group, "interface"):
+      group.interface.new_socket(name, in_out="INPUT", socket_type=socket_type)
+    else:
+      group.inputs.new(socket_type, name)
 
   def add_group_output(self, group, socket_type: str, name: str) -> None:
-    group.outputs.new(socket_type, name)
+    if hasattr(group, "interface"):
+      group.interface.new_socket(name, in_out="OUTPUT", socket_type=socket_type)
+    else:
+      group.outputs.new(socket_type, name)
 
   def set_switch_value(self, node, value: bool) -> None:
     node.check = value
@@ -40,7 +46,7 @@ class Compat420(BaseCompat):
   def get_invert_color_input(self) -> int:
     return 1
 
-  def get_mix_color_inputs(self) -> tuple[int, int]:
+  def get_mix_color_inputs(self) -> Tuple[int, int]:
     return (1, 2)
 
   def get_mix_output(self) -> int:
@@ -51,7 +57,11 @@ class Compat420(BaseCompat):
 
   def set_material_transparency(self, material, blend: str = "BLEND", shadow: str = "NONE") -> None:
     material.blend_method = blend
-    material.shadow_method = shadow
+    if hasattr(material, "shadow_method"):
+      material.shadow_method = shadow
+    elif hasattr(material, "surface_render_method"):
+      shadow_map = {"NONE": "DITHERED", "CLIP": "CLIP", "HASHED": "DITHERED", "BLEND": "BLENDED"}
+      material.surface_render_method = shadow_map.get(shadow, "DITHERED")
 
   def set_shadow_catcher(self, obj, value: bool) -> None:
     obj.is_shadow_catcher = value
@@ -78,15 +88,24 @@ class Compat420(BaseCompat):
   def set_sun_shadow_properties(self, sun_obj, scene_settings) -> None:
     d = sun_obj.data
     d.cycles.use_multiple_importance_sampling = False
-    d.shadow_buffer_bias = scene_settings.get("sun01_shadow_buffer_bias", 0.02)
-    d.shadow_cascade_count = scene_settings.get("sun01_shadow_cascade_count", 2)
-    d.shadow_cascade_fade = scene_settings.get("sun01_shadow_cascade_fade", 1)
-    d.shadow_cascade_max_distance = scene_settings.get("sun01_shadow_cascade_max_distance", 1000)
-    d.shadow_cascade_exponent = scene_settings.get("sun01_shadow_cascade_exponent", 0.8)
-    d.use_contact_shadow = True
-    d.contact_shadow_distance = scene_settings.get("sun01_contact_shadow_distance", 1000)
-    d.contact_shadow_bias = scene_settings.get("sun01_contact_shadow_bias", 0.5)
-    d.contact_shadow_thickness = scene_settings.get("sun01_contact_shadow_thickness", 0.7)
+    for attr, key, default in [
+      ("shadow_buffer_bias", "sun01_shadow_buffer_bias", 0.02),
+      ("shadow_cascade_count", "sun01_shadow_cascade_count", 2),
+      ("shadow_cascade_fade", "sun01_shadow_cascade_fade", 1),
+      ("shadow_cascade_max_distance", "sun01_shadow_cascade_max_distance", 1000),
+      ("shadow_cascade_exponent", "sun01_shadow_cascade_exponent", 0.8),
+      ("use_contact_shadow", None, True),
+      ("contact_shadow_distance", "sun01_contact_shadow_distance", 1000),
+      ("contact_shadow_bias", "sun01_contact_shadow_bias", 0.5),
+      ("contact_shadow_thickness", "sun01_contact_shadow_thickness", 0.7),
+    ]:
+      try:
+        if key is None:
+          setattr(d, attr, default)
+        else:
+          setattr(d, attr, scene_settings.get(key, default))
+      except AttributeError:
+        pass
 
   def has_shadow_sun(self) -> bool:
     return False
@@ -106,17 +125,38 @@ class Compat420(BaseCompat):
 
   def set_eevee_settings(self, scene, settings: dict) -> None:
     e = scene.eevee
-    e.gtao_factor = settings.get("eevee_gtao_factor", 0.5)
-    e.gtao_distance = settings.get("eevee_gtao_distance", 100)
-    e.shadow_cascade_size = settings.get("eevee_shadow_cascade_size", "1024")
-    e.shadow_cube_size = settings.get("eevee_shadow_cube_size", "1024")
     e.taa_render_samples = settings.get("eevee_taa_render_samples", 64)
     e.taa_samples = settings.get("eevee_taa_samples", 8)
-    e.use_gtao = settings.get("eevee_use_gtao", True)
-    e.use_soft_shadows = settings.get("eevee_use_soft_shadows", True)
-    e.use_ssr = settings.get("eevee_use_ssr", True)
     e.shadow_pool_size = settings.get("eevee_shadow_pool_size", "32")
     e.use_shadows = settings.get("eevee_use_shadows", True)
+    try:
+      e.gtao_factor = settings.get("eevee_gtao_factor", 0.5)
+    except AttributeError:
+      pass
+    try:
+      e.gtao_distance = settings.get("eevee_gtao_distance", 100)
+    except AttributeError:
+      pass
+    try:
+      e.shadow_cascade_size = settings.get("eevee_shadow_cascade_size", "1024")
+    except AttributeError:
+      pass
+    try:
+      e.shadow_cube_size = settings.get("eevee_shadow_cube_size", "1024")
+    except AttributeError:
+      pass
+    try:
+      e.use_gtao = settings.get("eevee_use_gtao", True)
+    except AttributeError:
+      pass
+    try:
+      e.use_soft_shadows = settings.get("eevee_use_soft_shadows", True)
+    except AttributeError:
+      pass
+    try:
+      e.use_ssr = settings.get("eevee_use_ssr", True)
+    except AttributeError:
+      pass
 
   def set_cycles_film_transparent(self, scene, value: bool) -> None:
     scene.render.film_transparent = value
@@ -142,14 +182,14 @@ class Compat420(BaseCompat):
   def get_sky_density_property(self) -> str:
     return "dust_density"
 
-  def get_sky_type_value(self) -> str | None:
+  def get_sky_type_value(self) -> Optional[str]:
     return None
 
   def compositor_switch_toggle(self, name: str, value: bool) -> str:
-    return f'bpy.context.scene.node_tree.nodes["{name}"].check = {value}'
+    return 'bpy.context.scene.node_tree.nodes["{}"].check = {}'.format(name, value)
 
   def alpha_toggle(self, value: bool) -> str:
-    return f'bpy.context.scene.node_tree.nodes["Alpha"].check = {value}'
+    return 'bpy.context.scene.node_tree.nodes["Alpha"].check = {}'.format(value)
 
   def get_engine_string(self, engine_key: str) -> str:
     if engine_key == "CYCLES":

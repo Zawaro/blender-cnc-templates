@@ -1,4 +1,4 @@
-from __future__ import annotations
+from typing import Optional, Tuple
 
 from .compat import BaseCompat
 
@@ -40,7 +40,7 @@ class Compat279(BaseCompat):
   def get_invert_color_input(self) -> int:
     return 1
 
-  def get_mix_color_inputs(self) -> tuple[int, int]:
+  def get_mix_color_inputs(self) -> Tuple[int, int]:
     return (1, 2)
 
   def get_mix_output(self) -> int:
@@ -115,7 +115,8 @@ class Compat279(BaseCompat):
     return "ViewLayer"
 
   def set_view_layer_denoising(self, scene, enabled: bool = True) -> None:
-    pass
+    rl = scene.render.layers["RenderLayer"]
+    rl.use_pass_object_index = True
 
   def get_pixel_filter_type(self) -> str:
     return "GAUSSIAN"
@@ -129,14 +130,14 @@ class Compat279(BaseCompat):
   def get_sky_density_property(self) -> str:
     return "dust_density"
 
-  def get_sky_type_value(self) -> str | None:
+  def get_sky_type_value(self) -> Optional[str]:
     return None
 
   def compositor_switch_toggle(self, name: str, value: bool) -> str:
-    return f'bpy.context.scene.node_tree.nodes["{name}"].check = {value}'
+    return 'bpy.context.scene.node_tree.nodes["{}"].check = {}'.format(name, value)
 
   def alpha_toggle(self, value: bool) -> str:
-    return f'bpy.context.scene.node_tree.nodes["Alpha"].check = {value}'
+    return 'bpy.context.scene.node_tree.nodes["Alpha"].check = {}'.format(value)
 
   def get_engine_string(self, engine_key: str) -> str:
     if engine_key == "CYCLES":
@@ -145,3 +146,15 @@ class Compat279(BaseCompat):
 
   def has_collections(self) -> bool:
     return False
+
+  def has_cryptomatte(self) -> bool:
+    return False
+
+  def has_shader_to_rgb(self) -> bool:
+    return False
+
+  def get_shadow_pass_index(self) -> int:
+    return 1
+
+  def get_indexob_output_index(self) -> int:
+    return 14
