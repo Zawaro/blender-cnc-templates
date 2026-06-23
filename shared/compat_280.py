@@ -13,6 +13,12 @@ class Compat280(BaseCompat):
   MIX_NODE = "CompositorNodeMixRGB"
   SEPARATE_RGB_NODE = "ShaderNodeSeparateRGB"
 
+  def has_cryptomatte(self) -> bool:
+    return False
+
+  def has_shader_to_rgb(self) -> bool:
+    return False
+
   def init_compositor(self, scene) -> None:
     scene.use_nodes = True
 
@@ -72,11 +78,11 @@ class Compat280(BaseCompat):
     obj.hide_select = value
 
   def plane_add_kwargs(self) -> dict:
-    return {"size": 140, "enter_editmode": False, "align": "WORLD", "scale": (1, 1, 1)}
+    return {"size": 140, "enter_editmode": False, "align": "WORLD"}
 
   def add_sun_light(self, location, rotation, energy: float, angle: float) -> None:
     import bpy
-    bpy.ops.object.light_add(type="SUN", radius=1, align="WORLD", location=location, rotation=rotation, scale=(1, 1, 1))
+    bpy.ops.object.light_add(type="SUN", radius=1, align="WORLD", location=location, rotation=rotation)
 
   def set_sun_shadow_properties(self, sun_obj, scene_settings) -> None:
     d = sun_obj.data
@@ -96,7 +102,7 @@ class Compat280(BaseCompat):
 
   def add_shadow_sun(self, location, rotation, energy: float, angle: float) -> None:
     import bpy
-    bpy.ops.object.light_add(type="SUN", radius=1, align="WORLD", location=location, rotation=rotation, scale=(1, 1, 1))
+    bpy.ops.object.light_add(type="SUN", radius=1, align="WORLD", location=location, rotation=rotation)
 
   def configure_shadow_sun(self, shadow_sun, scene_settings) -> None:
     d = shadow_sun.data
@@ -109,7 +115,7 @@ class Compat280(BaseCompat):
     d.use_contact_shadow = False
 
   def camera_add_kwargs(self) -> dict:
-    return {"enter_editmode": False, "align": "VIEW", "scale": (1, 1, 1)}
+    return {"enter_editmode": False, "align": "VIEW"}
 
   def select_scene(self, scene_name: str) -> None:
     import bpy

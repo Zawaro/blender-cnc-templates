@@ -7,6 +7,23 @@ project_root = os.path.dirname(current_path)
 BASE_COLOR = (0, 0, 0)
 
 
+def _set_mapping(node, location=None, rotation=None, scale=None):
+  if len(node.inputs) > 2:
+    if location is not None:
+      node.inputs[1].default_value = location
+    if rotation is not None:
+      node.inputs[2].default_value = rotation
+    if scale is not None:
+      node.inputs[3].default_value = scale
+  else:
+    if location is not None:
+      node.translation = location
+    if rotation is not None:
+      node.rotation = rotation
+    if scale is not None:
+      node.scale = scale
+
+
 def RA2_World(suffix, props, compat):
   tex_dir = os.path.join(project_root, props["world_texture_path"])
 
@@ -19,9 +36,9 @@ def RA2_World(suffix, props, compat):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node01.inputs[2].default_value[2] = -1.22173
+  _set_mapping(mapping_node01, scale=(0, 0, -1.22173))
   mapping_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node02.inputs[1].default_value[2] = 0.3
+  _set_mapping(mapping_node02, rotation=(0, 0, 0.3))
   data_image = bpy.data.images.get(props["world_texture_name"])
   if not data_image:
     data_image = bpy.data.images.load(tex_dir)
@@ -90,9 +107,9 @@ def RA1_World(suffix, props, compat):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node01.inputs[2].default_value[2] = -1.22173
+  _set_mapping(mapping_node01, scale=(0, 0, -1.22173))
   mapping_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node02.inputs[1].default_value[2] = 0.3
+  _set_mapping(mapping_node02, rotation=(0, 0, 0.3))
   data_image = bpy.data.images.get(props["world_texture_name"])
   if not data_image:
     data_image = bpy.data.images.load(tex_dir)
@@ -160,7 +177,7 @@ def RW_World(suffix, props, compat):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node.inputs[2].default_value[2] = -1.22173
+  _set_mapping(mapping_node, scale=(0, 0, -1.22173))
   data_image = bpy.data.images.get(props["world_texture_name"])
   if not data_image:
     data_image = bpy.data.images.load(tex_dir)
@@ -220,7 +237,7 @@ def TS_World(suffix, props, compat):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node.inputs[2].default_value[2] = -1.22173
+  _set_mapping(mapping_node, scale=(0, 0, -1.22173))
   data_image = bpy.data.images.get(props["world_texture_name"])
   if not data_image:
     data_image = bpy.data.images.load(tex_dir)
@@ -280,7 +297,7 @@ def D2K_World(suffix, props, compat):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node.inputs[2].default_value[2] = -1.22173
+  _set_mapping(mapping_node, scale=(0, 0, -1.22173))
   data_image = bpy.data.images.get(props["world_texture_name"])
   if not data_image:
     data_image = bpy.data.images.load(tex_dir)
@@ -337,9 +354,9 @@ def RM_World(suffix, props, compat):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node01.inputs[2].default_value[2] = -1.22173
+  _set_mapping(mapping_node01, scale=(0, 0, -1.22173))
   mapping_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node02.inputs[1].default_value[2] = 0.3
+  _set_mapping(mapping_node02, rotation=(0, 0, 0.3))
   data_image = bpy.data.images.get(props["world_texture_name"])
   if not data_image:
     data_image = bpy.data.images.load(tex_dir)
