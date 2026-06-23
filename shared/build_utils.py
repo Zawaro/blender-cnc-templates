@@ -49,12 +49,12 @@ def setup_text_editor(readme_name: str = "Readme") -> None:
         break
 
 
-def save_blend(template_prefix, template_version, project_root):
+def save_blend(template_prefix, template_version, project_root, variant=""):
   now = _dt.datetime.utcnow()
   build_number = os.environ.get("BUILD_NUMBER", "0")
   version_tag = "{}_build{}".format(template_version, build_number)
   file_name = "{}_{}_{:%Y%m%d}.blend".format(template_prefix, version_tag, now)
-  output_dir = Path(project_root) / "release"
+  output_dir = Path(project_root) / "release" / variant if variant else Path(project_root) / "release"
   output_dir.mkdir(parents=True, exist_ok=True)
   save_path = output_dir / file_name
 
