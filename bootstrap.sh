@@ -8,6 +8,7 @@ echo
 versions=(
   "legacy"
   "legacy_cycles"
+  "legacy_eevee"
   "eevee"
   "cyclesx"
   "eevee_next"

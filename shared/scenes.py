@@ -242,12 +242,12 @@ class BaseScene:
       self.compat.create_shadow_view_layer(scene, self.full_name)
 
   def create_camera(self, name=None, location=None, rotation=None, camera_type=None, ortho_scale=None, clip_end=None):
-    name = name or self.camera_name
-    location = location or self.camera_location
-    rotation = rotation or self.camera_rotation
-    camera_type = camera_type or self.camera_type
-    ortho_scale = ortho_scale or self.camera_ortho_scale
-    clip_end = clip_end or self.camera_clip_end
+    name = name if name is not None else self.camera_name
+    location = location if location is not None else self.camera_location
+    rotation = rotation if rotation is not None else self.camera_rotation
+    camera_type = camera_type if camera_type is not None else self.camera_type
+    ortho_scale = ortho_scale if ortho_scale is not None else self.camera_ortho_scale
+    clip_end = clip_end if clip_end is not None else self.camera_clip_end
 
     bpy.ops.object.camera_add(**self.compat.camera_add_kwargs(), location=location, rotation=rotation)
     obj = bpy.context.active_object

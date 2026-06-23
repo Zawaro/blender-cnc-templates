@@ -3,6 +3,13 @@ from typing import Optional, Tuple
 from .compat import BaseCompat
 
 
+def _safe_setattr(obj, attr, value):
+  try:
+    setattr(obj, attr, value)
+  except AttributeError:
+    pass
+
+
 class Compat420(BaseCompat):
   """Blender 4.2+ (Eevee Next) compatibility layer."""
 
@@ -129,34 +136,13 @@ class Compat420(BaseCompat):
     e.taa_samples = settings.get("eevee_taa_samples", 8)
     e.shadow_pool_size = settings.get("eevee_shadow_pool_size", "32")
     e.use_shadows = settings.get("eevee_use_shadows", True)
-    try:
-      e.gtao_factor = settings.get("eevee_gtao_factor", 0.5)
-    except AttributeError:
-      pass
-    try:
-      e.gtao_distance = settings.get("eevee_gtao_distance", 100)
-    except AttributeError:
-      pass
-    try:
-      e.shadow_cascade_size = settings.get("eevee_shadow_cascade_size", "1024")
-    except AttributeError:
-      pass
-    try:
-      e.shadow_cube_size = settings.get("eevee_shadow_cube_size", "1024")
-    except AttributeError:
-      pass
-    try:
-      e.use_gtao = settings.get("eevee_use_gtao", True)
-    except AttributeError:
-      pass
-    try:
-      e.use_soft_shadows = settings.get("eevee_use_soft_shadows", True)
-    except AttributeError:
-      pass
-    try:
-      e.use_ssr = settings.get("eevee_use_ssr", True)
-    except AttributeError:
-      pass
+    _safe_setattr(e, "gtao_factor", settings.get("eevee_gtao_factor", 0.5))
+    _safe_setattr(e, "gtao_distance", settings.get("eevee_gtao_distance", 100))
+    _safe_setattr(e, "shadow_cascade_size", settings.get("eevee_shadow_cascade_size", "1024"))
+    _safe_setattr(e, "shadow_cube_size", settings.get("eevee_shadow_cube_size", "1024"))
+    _safe_setattr(e, "use_gtao", settings.get("eevee_use_gtao", True))
+    _safe_setattr(e, "use_soft_shadows", settings.get("eevee_use_soft_shadows", True))
+    _safe_setattr(e, "use_ssr", settings.get("eevee_use_ssr", True))
 
   def set_cycles_film_transparent(self, scene, value: bool) -> None:
     scene.render.film_transparent = value

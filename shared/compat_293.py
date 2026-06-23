@@ -144,7 +144,7 @@ class Compat293(BaseCompat):
     return "View Layer"
 
   def set_view_layer_denoising(self, scene, enabled: bool = True) -> None:
-    vl = scene.view_layers["View Layer"]
+    vl = scene.view_layers[self.get_view_layer_name()]
     vl.cycles.use_denoising = enabled
     vl.cycles.denoising_radius = 0.5
     vl.cycles.denoising_strength = 0.5

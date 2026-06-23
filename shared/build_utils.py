@@ -50,7 +50,7 @@ def setup_text_editor(readme_name: str = "Readme") -> None:
 
 
 def save_blend(template_prefix, template_version, project_root, variant=""):
-  now = _dt.datetime.utcnow()
+  now = _dt.datetime.now(_dt.timezone.utc)
   build_number = os.environ.get("BUILD_NUMBER", "0")
   version_tag = "{}_build{}".format(template_version, build_number)
   file_name = "{}_{}_{:%Y%m%d}.blend".format(template_prefix, version_tag, now)
