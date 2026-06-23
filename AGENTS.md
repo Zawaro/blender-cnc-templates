@@ -1,134 +1,62 @@
-# AI Agent Workflow & Project Guidelines
+# AGENTS.md
 
-This file defines how AI agents / LLMs should operate within this repository.
-It provides instructions, boundaries, and workflow expectations so that AI
-assistance produces consistent, maintainable, and production-ready code.
+## Project summary
 
-## 🧠 Agent Role and Scope
+Generates `.blend` scene templates for multiple Blender versions (2.79b–5.0). Each version is isolated in its own folder with independent venv. Output goes to `release/`.
 
-- You are an AI coding assistant that helps develop features, scripts, and
-  automation related to this Python + Blender template project.
-- You may output **thoughts, reasoning, plans, and questions in chat** to help
-  with understanding and planning.
-- **You must _not_ output internal reasoning, thoughts, or analysis inside
-  code files** (Python, Bash, config files, etc.).  
-  Only *final*, *clean*, *executable* code may appear in code files.
-
-### 📌 When to Show Thoughts in Chat
-Use chat to display:
-- Planning steps
-- Blockers or requests for clarification
-- Proposed implementation strategies
-- Assumptions and trade-offs
-
-These may be shown in chat but must not appear inside the code files.
-
-## 🧩 Project Structure
-
-The project uses a version-per-folder layout for supported Blender versions:
+## Directory structure
 
 ```
-
-./legacy/              # Blender 2.79b
-./legacy_cycles/       # Blender 2.79b legacy Cycles
-./eevee/               # Blender 2.80+
-./cyclesx/             # Blender 3.0+
-./eevee_next/          # Blender 4.2+
-./hi_five/         # Blender 5.0+
-
+{version}/              # One per Blender target: legacy, legacy_cycles, eevee, cyclesx, eevee_next, hi_five
+  constants.py          # TEMPLATE_PREFIX, TEMPLATE_VERSION
+  scenes.py             # Scene classes (BaseScene + game-specific subclasses)
+  plane_materials.py    # Plane material node graphs
+  world_materials.py    # World material node graphs
+  generate_scripts.py   # Produces scripts/*.txt files
+  main.py               # Headless Blender entrypoint - builds .blend
+  scripts/              # Generated .txt scripts (gitignored)
+shared/
+  constants.py          # Shared filter width/size values
+  node_arrange.py       # Auto-layout for Blender nodes
+  node_arrange_legacy.py
+  *.exr                 # HDRI textures used by scenes
+release/                # Output .blend and .7z files (gitignored)
 ```
 
-Each version folder contains:
+## Build commands
 
-- `scripts/` – generated Blender automation scripts
-- `constants.py` – shared values for that version
-- `generate_scripts.py` – script generator
-- `scenes.py` – scene definitions and logic
-- `plane_materials.py` – material graphs
-- `world_materials.py` – world node constructs
-
-## 🧑‍💻 Coding Standards
-
-- Use **snake_case** for variable and function names.
-- Use Blender’s `bpy` module APIs; avoid low-level object indexing whenever possible.
-- Do **not** write Blender add-ons — scripts are targeted runtime automation.
-- Include docstrings (`"""triple double quotes"""`) for functions and modules.
-- Use **uv** for dependency and environment management instead of `pip`.
-
-## 🛠 Agent Workflow
-
-### 1) **Plan Before Writing Code**
-Before generating code:
-- Generate a **mini design brief** describing the intended change.
-- Ask for review or clarification if requirements are unclear.  
-This *Plan → Act → Reflect* workflow reduces mistakes.
-
-Example plan prompt:
-
-```
-Plan how to add a new scene type to `scenes.py` including:
-
-* Expected inputs
-* Output behavior
-* Validation and tests
-  Then wait for confirmation.
+```sh
+uv run ./build.sh       # Interactive: pick version, auto-finds Blender, generates + renders
+uv run python {version}/generate_scripts.py   # Generate scripts only (no Blender needed)
 ```
 
-### 2) **Work in Small, Modular Changes**
-- Break large tasks into smaller subtasks.
-- Each change should be self-contained and testable.
-- When generating changes, output a **diff** preview before writing files.
+`build.sh` flow: select engine → find Blender executable → create per-version `.venv` via `bootstrap.sh` if missing → `pip install` from `requirements.txt` → run `generate_scripts.py` → run Blender headless with `main.py` → archive to `.7z`.
 
-### 3) **Generate Clean Code Only**
-When writing code:
-- **Never include reasoning or “thoughts” inside the code**.
-- The code must be directly runnable without extra comments like:
-  > `# I think this will fix the bug because...`
+`bootstrap.sh` creates `.venv` in each version folder and installs `fake-bpy-module` for IDE autocomplete.
 
-Prompt example to enforce this:
+## Linting
 
-```
-Please output only the final code file, no explanations or intermediate reasoning.
+```sh
+uv run ruff check .
 ```
 
-### 4) **Review Before Applying**
-For every non-trivial change:
-- Provide a short summary of what you did.
-- Show the diff of file changes.
-- Ask for human review or confirmation.
+Config in `pyproject.toml`: 2-space indent, 200-char line length. Also uses `pylintrc` with 2-space indent and several disabled checks (`missing-docstring`, `line-too-long`, `trailing-whitespace`, etc.).
 
-Example review prompt:
+## Key conventions
 
-```
-Here is the diff for the changes requested. Confirm acceptance or provide
-corrections.
-```
+- **2-space indentation** throughout (enforced by ruff + pylintrc).
+- Scripts inside version folders run in Blender's Python interpreter, not standalone. `bpy` is the core API. Do not write Blender add-ons — these are headless automation scripts.
+- `generate_scripts.py` uses string concatenation to build `.txt` script files. `main.py` loads them into Blender text datablocks at build time.
+- Each game scene (RA2, TS, RW, RA1, RM, D2K) has 3 variants: base, INF (infantry, lower res), FX (effects). The `_FX` classes typically inherit from the base and override a few attributes.
+- `scenes.py` is the most complex file per version. Scene classes inherit from `BaseScene` and chain setup: `create_scene()` → `set_*_settings()` → `create_collections()` → `create_camera()` → `create_light()` → material setup → `create_composite_nodes()`.
+- Import paths are manually hacked via `sys.path.append` — each version folder adds its own path and `parent_path` to import from `shared/`.
+- `shared/node_arrange.py` must be called after creating node trees to auto-layout nodes.
+- `scripts/` directories and `release/` are gitignored. Never commit generated artifacts.
 
-### 5) **Permission Boundaries**
-AI should **not** modify:
-- Critical configuration files (`pyproject.toml` unless requested)
-Ask for confirmation if such changes are needed.
+## Gotchas
 
-### 6) **Testing and Validation**
-Always provide tests or clear manual validation steps for generated code (e.g., how to run `build.sh`, expected output behavior).
-
-Example:
-
-```
-Explain how to validate this code change. Provide steps and expected outcomes.
-```
-
-## 📄 Documentation Guidelines
-
-- Maintain up-to-date READMEs and module docstrings.
-- AI should use complete, copy-pasteable command examples (no generic placeholders).
-- Code examples should be runnable and include all necessary imports and context.
-
-## ⚠️ AI Limitations
-
-To prevent misgeneration:
-- AI may not assume missing context — ask clarifying questions.
-- If uncertain, output a **clarifying question first instead of guessing**.
-- Treat generated code as draft until human review and testing are complete.
-
----
+- There is no automated test suite. Validation is: run `generate_scripts.py`, run Blender headless, check that `.blend` file is produced in `release/`.
+- `build.sh` is interactive (uses `select` for engine choice). Cannot be run non-interactively.
+- Version folder names do not match Blender versions exactly (e.g. `hi_five` = Blender 5.0, `eevee_next` = Blender 4.2).
+- `shared/constants.py` has different filter sizes per render engine (Cycles vs Eevee vs Eevee Next). Check this before changing filter-related values.
+- `fake-bpy-module` in `requirements.txt` is for IDE support only, not runtime. The real `bpy` comes from the Blender installation.

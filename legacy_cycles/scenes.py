@@ -45,7 +45,7 @@ class BaseScene():
   render_resolution_y = 480
   render_use_single_layer = True
   unit_settings_system = 'NONE'
-  view_settings_view_transform = 'Standard'
+  view_settings_view_transform = 'Default'
   view_settings_look = 'None'
   view_settings_exposure = 0
 
@@ -124,30 +124,18 @@ class BaseScene():
     bpy.context.scene.render.resolution_x = self.render_resolution_x
     bpy.context.scene.render.resolution_y = self.render_resolution_y
     bpy.context.scene.render.use_single_layer = self.render_use_single_layer
-    bpy.context.scene.view_layers['ViewLayer'].cycles.denoising_store_passes = True
     bpy.context.scene.unit_settings.system = self.unit_settings_system
     bpy.context.scene.view_settings.view_transform = self.view_settings_view_transform
     bpy.context.scene.view_settings.look = self.view_settings_look
     bpy.context.scene.view_settings.exposure = self.view_settings_exposure
 
   def create_collections(self):
-    collection = bpy.data.collections.new(self.full_name)
-    bpy.context.scene.collection.children.link(collection)
-    
-    template_collection = bpy.data.collections.new(self.full_name + " Template")
-    bpy.context.scene.collection.children.link(template_collection)
-    
-    bpy.context.view_layer.active_layer_collection = \
-      bpy.context.view_layer.layer_collection.children[self.full_name + " Template"]
-    shadow_collection = bpy.data.collections.new(self.full_name + " Shadow")
-    template_collection.children.link(shadow_collection)
-    holdout_collection = bpy.data.collections.new(self.full_name + " Holdout")
-    template_collection.children.link(holdout_collection)
+    pass
 
   def create_camera(self, name=camera_name, location=camera_location, rotation=camera_rotation, camera_type=camera_type, ortho_scale=camera_ortho_scale):
-    bpy.ops.object.camera_add(enter_editmode=False, align='VIEW', location=location, rotation=rotation, scale=(1, 1, 1))
+    bpy.ops.object.camera_add(enter_editmode=False, location=location, rotation=rotation)
     bpy.context.active_object.name = name
-    bpy.context.active_object.hide_viewport = True
+    bpy.context.active_object.hide = True
     bpy.context.active_object.data.name = name
     bpy.context.active_object.data.type = camera_type
     if (camera_type == 'PERSP'):
@@ -163,129 +151,125 @@ class BaseScene():
 
   def create_light(self):
     # - Normal Sun
-    bpy.ops.object.light_add(type='SUN', radius=1, align='WORLD', location=self.sun01_location, rotation=self.sun01_rotation, scale=(1, 1, 1))
+    bpy.ops.object.lamp_add(type='SUN', location=self.sun01_location, rotation=self.sun01_rotation)
     bpy.context.active_object.name = 'Sun.' + self.suffix
     bpy.context.active_object.data.name = "Sun." + self.suffix
     bpy.context.active_object.data.energy = self.sun01_energy
-    bpy.context.active_object.data.angle = self.sun01_angle
+    bpy.context.active_object.data.shadow_soft_size = self.sun01_angle
     bpy.context.active_object.data.cycles.use_multiple_importance_sampling = False
-    bpy.context.active_object.data.shadow_buffer_bias = self.sun01_shadow_buffer_bias
-    bpy.context.active_object.data.shadow_cascade_count = self.sun01_shadow_cascade_count
-    bpy.context.active_object.data.shadow_cascade_fade = self.sun01_shadow_cascade_fade
-    bpy.context.active_object.data.shadow_cascade_max_distance = self.sun01_shadow_cascade_max_distance
-    bpy.context.active_object.data.shadow_cascade_exponent = self.sun01_shadow_cascade_exponent
-    bpy.context.active_object.data.use_contact_shadow = True
-    bpy.context.active_object.data.contact_shadow_distance = self.sun01_contact_shadow_distance
-    bpy.context.active_object.data.contact_shadow_bias = self.sun01_contact_shadow_bias
-    bpy.context.active_object.data.contact_shadow_thickness = self.sun01_contact_shadow_thickness
     bpy.context.active_object.hide_select = True
 
     # - Sun for rendering shadows with Shadow script
-    bpy.ops.object.light_add(type='SUN', radius=1, align='WORLD', location=self.sun01_location, rotation=self.sun01_rotation, scale=(1, 1, 1))
+    bpy.ops.object.lamp_add(type='SUN', location=self.sun01_location, rotation=self.sun01_rotation)
     bpy.context.active_object.name = 'Sun.shadow.' + self.suffix
     bpy.context.active_object.data.name = "Sun.shadow." + self.suffix
     bpy.context.active_object.data.energy = self.sun02_energy
-    bpy.context.active_object.data.angle = self.sun01_angle
+    bpy.context.active_object.data.shadow_soft_size = self.sun01_angle
     bpy.context.active_object.data.cycles.use_multiple_importance_sampling = False
-    bpy.context.active_object.data.shadow_buffer_bias = self.sun01_shadow_buffer_bias
-    bpy.context.active_object.data.shadow_cascade_count = self.sun02_shadow_cascade_count
-    bpy.context.active_object.data.shadow_cascade_fade = self.sun02_shadow_cascade_fade
-    bpy.context.active_object.data.shadow_cascade_max_distance = self.sun02_shadow_cascade_max_distance
-    bpy.context.active_object.data.shadow_cascade_exponent = self.sun02_shadow_cascade_exponent
-    bpy.context.active_object.data.use_contact_shadow = False
     bpy.context.active_object.hide_select = True
     bpy.context.active_object.hide_render = True
-    bpy.context.active_object.hide_viewport = True
+    bpy.context.active_object.hide = True
 
   def create_planes(self):
     ambient_mat = Plane_Ambient(self.suffix)
-    bpy.ops.mesh.primitive_plane_add(size=140, enter_editmode=False, align='WORLD', location=(0, 0, -20), scale=(1, 1, 1))
+    bpy.ops.mesh.primitive_plane_add(enter_editmode=False, location=(0, 0, -20))
+    bpy.context.active_object.scale = (70, 70, 1)
     bpy.context.active_object.name = 'Plane.ambient.' + self.suffix
     bpy.context.active_object.hide_render = True
-    bpy.context.active_object.hide_viewport = True
-    bpy.context.active_object.visible_glossy = False
+    bpy.context.active_object.hide = True
+    try:
+        bpy.context.active_object.visible_glossy = False
+    except AttributeError:
+        pass
     bpy.context.active_object.data.materials.append(ambient_mat)
 
     blue_mat = Plane_Blue(self.suffix)
-    bpy.ops.mesh.primitive_plane_add(size=140, enter_editmode=False, align='WORLD', location=(0, 0, -0.01), scale=(1, 1, 1))
+    bpy.ops.mesh.primitive_plane_add(enter_editmode=False, location=(0, 0, -0.01))
+    bpy.context.active_object.scale = (70, 70, 1)
     bpy.context.active_object.name = 'Plane.blue.' + self.suffix
     bpy.context.active_object.hide_render = True
-    bpy.context.active_object.hide_viewport = True
-    bpy.context.active_object.visible_glossy = False
+    bpy.context.active_object.hide = True
+    try:
+        bpy.context.active_object.visible_glossy = False
+    except AttributeError:
+        pass
     bpy.context.active_object.data.materials.append(blue_mat)
 
     grey_mat = Plane_Grey(self.suffix)
-    bpy.ops.mesh.primitive_plane_add(size=140, enter_editmode=False, align='WORLD', location=(0, 0, -0.01), scale=(1, 1, 1))
+    bpy.ops.mesh.primitive_plane_add(enter_editmode=False, location=(0, 0, -0.01))
+    bpy.context.active_object.scale = (70, 70, 1)
     bpy.context.active_object.name = 'Plane.grey.' + self.suffix
-    bpy.context.active_object.hide_viewport = True
-    bpy.context.active_object.visible_glossy = False
+    bpy.context.active_object.hide = True
+    try:
+        bpy.context.active_object.visible_glossy = False
+    except AttributeError:
+        pass
     bpy.context.active_object.data.materials.append(grey_mat)
 
     holdout_mat = Plane_Holdout(self.suffix)
-    bpy.ops.mesh.primitive_plane_add(size=140, enter_editmode=False, align='WORLD', location=(0, 0, -0.01), scale=(1, 1, 1))
+    bpy.ops.mesh.primitive_plane_add(enter_editmode=False, location=(0, 0, -0.01))
+    bpy.context.active_object.scale = (70, 70, 1)
     bpy.context.active_object.name = 'Plane.holdout2.' + self.suffix
     bpy.context.active_object.hide_render = True
-    bpy.context.active_object.hide_viewport = True
-    bpy.context.active_object.visible_glossy = False
+    bpy.context.active_object.hide = True
+    try:
+        bpy.context.active_object.visible_glossy = False
+    except AttributeError:
+        pass
     bpy.context.active_object.data.materials.append(holdout_mat)
-    bpy.context.active_object.data.materials[0].blend_method = 'BLEND'
-    bpy.context.active_object.data.materials[0].shadow_method = 'NONE'
 
     shadow_mat = Plane_Shadow(self.suffix)
-    bpy.ops.mesh.primitive_plane_add(size=140, enter_editmode=False, align='WORLD', location=(0, 0, -0.01), scale=(1, 1, 1))
+    bpy.ops.mesh.primitive_plane_add(enter_editmode=False, location=(0, 0, -0.01))
+    bpy.context.active_object.scale = (70, 70, 1)
     bpy.context.active_object.name = 'Plane.shadow2.' + self.suffix
     bpy.context.active_object.hide_render = True
-    bpy.context.active_object.hide_viewport = True
-    bpy.context.active_object.visible_glossy = False
-    bpy.context.active_object.is_shadow_catcher = True
+    bpy.context.active_object.hide = True
+    try:
+        bpy.context.active_object.visible_glossy = False
+    except AttributeError:
+        pass
+    try:
+        bpy.context.active_object.cycles.is_shadow_catcher = True
+    except AttributeError:
+        pass
     bpy.context.active_object.data.materials.append(shadow_mat)
-    bpy.context.active_object.data.materials[0].blend_method = 'BLEND'
-    bpy.context.active_object.data.materials[0].shadow_method = 'NONE'
 
-    bpy.context.view_layer.active_layer_collection = \
-    bpy.context.view_layer.layer_collection.children[self.full_name + " Template"].children[self.full_name + " Shadow"]
-
-    bpy.ops.mesh.primitive_plane_add(size=140, enter_editmode=False, align='WORLD', location=(0, 0, -0.01), scale=(1, 1, 1))
+    bpy.ops.mesh.primitive_plane_add(enter_editmode=False, location=(0, 0, -0.01))
+    bpy.context.active_object.scale = (70, 70, 1)
     bpy.context.active_object.name = 'Plane.shadow.' + self.suffix
     bpy.context.active_object.hide_render = True
-    bpy.context.active_object.hide_viewport = True
-    bpy.context.active_object.visible_glossy = False
-    bpy.context.active_object.is_shadow_catcher = True
+    bpy.context.active_object.hide = True
+    try:
+        bpy.context.active_object.visible_glossy = False
+    except AttributeError:
+        pass
+    try:
+        bpy.context.active_object.cycles.is_shadow_catcher = True
+    except AttributeError:
+        pass
     bpy.context.active_object.data.materials.append(shadow_mat)
-    bpy.context.active_object.data.materials[0].blend_method = 'BLEND'
-    bpy.context.active_object.data.materials[0].shadow_method = 'NONE'
 
-    bpy.context.view_layer.active_layer_collection = \
-    bpy.context.view_layer.layer_collection.children[self.full_name + " Template"].children[self.full_name + " Holdout"]
-
-    bpy.ops.mesh.primitive_plane_add(size=140, enter_editmode=False, align='WORLD', location=(0, 0, -0.015), scale=(1, 1, 1))
+    bpy.ops.mesh.primitive_plane_add(enter_editmode=False, location=(0, 0, -0.015))
+    bpy.context.active_object.scale = (70, 70, 1)
     bpy.context.active_object.name = 'Plane.holdout.' + self.suffix
     bpy.context.active_object.hide_render = True
-    bpy.context.active_object.hide_viewport = True
-    bpy.context.active_object.visible_glossy = False
+    bpy.context.active_object.hide = True
+    try:
+        bpy.context.active_object.visible_glossy = False
+    except AttributeError:
+        pass
     bpy.context.active_object.data.materials.append(holdout_mat)
-    bpy.context.active_object.data.materials[0].blend_method = 'BLEND'
-    bpy.context.active_object.data.materials[0].shadow_method = 'NONE'
-
-    bpy.context.view_layer.layer_collection.children[self.full_name + " Template"].children[self.full_name + " Holdout"].exclude = True
 
     # Arrange material nodes
     arrange_nodes([ambient_mat.node_tree, blue_mat.node_tree, grey_mat.node_tree, holdout_mat.node_tree, shadow_mat.node_tree])
 
   def create_shadow_layer(self):
-    bpy.ops.scene.view_layer_add(type='NEW')
-    bpy.context.view_layer.name = "ShadowLayer"
-    bpy.context.window.view_layer = bpy.context.scene.view_layers['ShadowLayer']
-    bpy.context.view_layer.layer_collection.children[self.full_name + " Template"].children[self.full_name + " Shadow"].exclude = True
-    bpy.context.window.view_layer = bpy.context.scene.view_layers['ViewLayer']
+    pass
 
   def create_composite_nodes(self):
-    # Required in order to connect Render Layer node to Denoise node
     bpy.context.scene.render.engine = 'CYCLES'
     bpy.context.scene.use_nodes = True
     renderlayers_node01 = bpy.data.scenes[self.full_name].node_tree.nodes["Render Layers"]
-    renderlayers_node02 = bpy.context.scene.node_tree.nodes.new("CompositorNodeRLayers")
-    renderlayers_node02.layer = "ShadowLayer"
     composite_node01 = bpy.data.scenes[self.full_name].node_tree.nodes["Composite"]
 
     switch_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeSwitch")
@@ -330,19 +314,6 @@ class BaseScene():
     alpha_group01.links.new(alpha_group01_cHSVA.outputs[0], alpha_group01_output.inputs[0])
     alpha_convert_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeGroup")
     alpha_convert_node01.node_tree = alpha_group01
-    alpha_convert_node02 = bpy.context.scene.node_tree.nodes.new("CompositorNodeGroup")
-    alpha_convert_node02.node_tree = alpha_group01
-
-    denoise_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeDenoise")
-    denoise_node01.prefilter = 'NONE'
-    subtract_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeMixRGB")
-    subtract_node01.blend_type = 'SUBTRACT'
-    subtract_node01.inputs[0].default_value = 1
-    colorramp_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeValToRGB")
-    colorramp_node01.color_ramp.elements[0].position = self.colorramp_position01
-    colorramp_node01.color_ramp.elements[0].color = self.colorramp_color01
-    colorramp_node01.color_ramp.elements[1].position = self.colorramp_position02
-    colorramp_node01.color_ramp.elements[1].color = self.colorramp_color02
     rgb_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeRGB")
     rgb_node01.outputs[0].default_value = (0, 0, 1, 1)
     rgb_node01.name = 'BackgroundRGB'
@@ -352,27 +323,18 @@ class BaseScene():
     rgb_node02.name = 'BackgroundAlpha'
     rgb_node02.label = 'BackgroundAlpha'
     alphaover_node01 = bpy.context.scene.node_tree.nodes.new("CompositorNodeAlphaOver")
-    alphaover_node01.use_premultiply = True
     alphaover_node02 = bpy.context.scene.node_tree.nodes.new("CompositorNodeAlphaOver")
-    alphaover_node02.use_premultiply = True
 
     bpy.context.scene.node_tree.links.new(switch_node04.outputs[0], composite_node01.inputs[0])
     bpy.context.scene.node_tree.links.new(switch_node03.outputs[0], switch_node04.inputs[0])
     bpy.context.scene.node_tree.links.new(switch_node02.outputs[0], switch_node03.inputs[0])
     bpy.context.scene.node_tree.links.new(switch_node01.outputs[0], switch_node02.inputs[0])
 
-    bpy.context.scene.node_tree.links.new(renderlayers_node01.outputs[0], denoise_node01.inputs[0])
-    bpy.context.scene.node_tree.links.new(renderlayers_node01.outputs[2], denoise_node01.inputs[1])
-    bpy.context.scene.node_tree.links.new(renderlayers_node01.outputs[3], denoise_node01.inputs[2])
-    bpy.context.scene.node_tree.links.new(denoise_node01.outputs[0], switch_node01.inputs[0])
-    bpy.context.scene.node_tree.links.new(denoise_node01.outputs[0], alpha_convert_node01.inputs[0])
+    bpy.context.scene.node_tree.links.new(renderlayers_node01.outputs[0], switch_node01.inputs[0])
+    bpy.context.scene.node_tree.links.new(renderlayers_node01.outputs[0], alpha_convert_node01.inputs[0])
     bpy.context.scene.node_tree.links.new(alpha_convert_node01.outputs[0], alphaover_node01.inputs[2])
 
-    bpy.context.scene.node_tree.links.new(renderlayers_node02.outputs[0], alpha_convert_node02.inputs[0])
-    bpy.context.scene.node_tree.links.new(alpha_convert_node02.outputs[1], subtract_node01.inputs[2])
-    bpy.context.scene.node_tree.links.new(alpha_convert_node01.outputs[1], subtract_node01.inputs[1])
-    bpy.context.scene.node_tree.links.new(subtract_node01.outputs[0], colorramp_node01.inputs[0])
-    bpy.context.scene.node_tree.links.new(colorramp_node01.outputs[0], alphaover_node02.inputs[2])
+    bpy.context.scene.node_tree.links.new(alphaover_node01.outputs[0], alphaover_node02.inputs[2])
 
     bpy.context.scene.node_tree.links.new(rgb_node01.outputs[0], switch_node05.inputs[0])
     bpy.context.scene.node_tree.links.new(rgb_node02.outputs[0], switch_node05.inputs[1])
