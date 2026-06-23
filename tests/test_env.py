@@ -10,8 +10,8 @@ def test_env_example_exists():
 
 def test_env_example_has_all_vars():
   expected = [
-    "BLENDER_LEGACY", "BLENDER_LEGACY_CYCLES", "BLENDER_EEVEE",
-    "BLENDER_CYCLESX", "BLENDER_EEVEE_NEXT", "BLENDER_HI_FIVE",
+    "BLENDER_LEGACY", "BLENDER_LEGACY_CYCLES", "BLENDER_LEGACY_EEVEE",
+    "BLENDER_EEVEE", "BLENDER_CYCLESX", "BLENDER_EEVEE_NEXT", "BLENDER_HI_FIVE",
   ]
   with open(".env.example") as f:
     content = f.read()

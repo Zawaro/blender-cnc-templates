@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 VERSION_FOLDERS = [
-  "legacy_cycles", "eevee", "cyclesx", "eevee_next", "hi_five",
+  "legacy_cycles", "legacy_eevee", "eevee", "cyclesx", "eevee_next", "hi_five",
 ]
 
 
