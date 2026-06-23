@@ -1,2 +1,2 @@
 TEMPLATE_VERSION = "1_00_alpha3"
-TEMPLATE_PREFIX = "CnC_FutureFive"
+TEMPLATE_PREFIX = "CnC_HiFive"

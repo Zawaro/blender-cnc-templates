@@ -1,6 +1,6 @@
 # hi_five/main.py
 """
-Build script for the **Future Five** (Blender 5.0) template.
+Build script for the **Hi Five** (Blender 5.0) template.
 
 The script:
 
