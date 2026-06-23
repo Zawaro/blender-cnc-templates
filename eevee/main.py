@@ -13,7 +13,7 @@ from shared.build_utils import load_scripts, setup_text_editor, save_blend
 from shared.constants import TEMPLATE_VERSION
 from constants import TEMPLATE_PREFIX, TEMPLATE_VARIANT
 
-compat = get_compat(2, 80)
+compat = get_compat(2, 93)
 
 from world_materials import WORLD_CLASS_MAP
 

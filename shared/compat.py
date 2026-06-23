@@ -254,9 +254,12 @@ def get_compat(major: int, minor: int) -> BaseCompat:
   if major <= 2 and minor <= 79:
     from .compat_279 import Compat279
     return Compat279()
-  elif major == 2 and minor >= 80:
+  elif major == 2 and minor >= 80 and minor < 93:
     from .compat_280 import Compat280
     return Compat280()
+  elif major == 2 and minor >= 93:
+    from .compat_293 import Compat293
+    return Compat293()
   elif major == 3:
     from .compat_300 import Compat300
     return Compat300()
