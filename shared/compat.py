@@ -223,6 +223,13 @@ class BaseCompat(ABC):
   def has_collections(self) -> bool:
     """Whether this version creates collections."""
 
+  @abstractmethod
+  def create_shadow_view_layer(self, scene, full_name):
+    """Create and configure a ShadowLayer view layer for shadow-only rendering.
+
+    Returns the name of the shadow view layer, or None if not supported.
+    """
+
   # -- Compositor node availability --
 
   def has_cryptomatte(self) -> bool:

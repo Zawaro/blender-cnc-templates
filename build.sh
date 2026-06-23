@@ -34,7 +34,7 @@ done
 case "$engine" in
     "legacy")         env_var="BLENDER_LEGACY";         ver_min=2.79; ver_max=2.79 ;;
     "legacy_cycles")  env_var="BLENDER_LEGACY_CYCLES";  ver_min=2.79; ver_max=2.79 ;;
-    "eevee")          env_var="BLENDER_EEVEE";          ver_min=2.80; ver_max=2.93 ;;
+    "eevee")          env_var="BLENDER_EEVEE";          ver_min=2.81; ver_max=2.93 ;;
     "cyclesx")        env_var="BLENDER_CYCLESX";        ver_min=3.0;  ver_max=3.6 ;;
     "eevee_next")     env_var="BLENDER_EEVEE_NEXT";     ver_min=4.1;  ver_max=4.5 ;;
     "hi_five")        env_var="BLENDER_HI_FIVE";        ver_min=5.0;  ver_max=6.0 ;;
