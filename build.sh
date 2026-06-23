@@ -190,7 +190,7 @@ if ! hash 7z > /dev/null 2>/dev/null; then
 fi
 
 # --- 10) Archive generated .blend files ---
-for f in release/*.blend; do
+for f in "release/$engine"/*.blend; do
     base=${f%%.*}
     zip_file="${base}.zip"
     sevenz_file="${base}.7z"

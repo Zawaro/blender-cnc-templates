@@ -12,7 +12,7 @@ from shared.scenes import ALL_SCENE_CLASSES, register_world
 from shared.world_materials import WORLD_CLASS_MAP
 from shared.build_utils import load_scripts, setup_text_editor, save_blend
 from shared.constants import TEMPLATE_VERSION
-from constants import TEMPLATE_PREFIX
+from constants import TEMPLATE_PREFIX, TEMPLATE_VARIANT
 
 compat = get_compat(4, 2)
 
@@ -25,4 +25,4 @@ for cls in ALL_SCENE_CLASSES:
 load_scripts(os.path.join(CURRENT_PATH, "scripts"))
 setup_text_editor()
 
-save_blend(TEMPLATE_PREFIX, TEMPLATE_VERSION, str(Path(__file__).resolve().parents[1]))
+save_blend(TEMPLATE_PREFIX, TEMPLATE_VERSION, str(Path(__file__).resolve().parents[1]), TEMPLATE_VARIANT)
