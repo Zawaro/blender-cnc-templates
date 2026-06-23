@@ -1,5 +1,6 @@
 # General development environment variables, files and paths
 env
+.env
 __pycache__
 __pycache__/
 .blend
