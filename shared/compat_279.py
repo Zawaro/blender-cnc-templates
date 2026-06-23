@@ -147,6 +147,9 @@ class Compat279(BaseCompat):
   def has_collections(self) -> bool:
     return False
 
+  def create_shadow_view_layer(self, scene, full_name):
+    return None
+
   def has_cryptomatte(self) -> bool:
     return False
 

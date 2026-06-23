@@ -156,3 +156,19 @@ class Compat300(BaseCompat):
 
   def has_collections(self) -> bool:
     return True
+
+  def create_shadow_view_layer(self, scene, full_name):
+    import bpy
+    shadow_vl = scene.view_layers.new("ShadowLayer")
+    root = shadow_vl.layer_collection
+    template_key = full_name + " Template"
+    shadow_key = full_name + " Shadow"
+    for name in list(root.children.keys()):
+      if name == template_key:
+        template_lc = root.children[name]
+        for child_name in list(template_lc.children.keys()):
+          if child_name != shadow_key:
+            template_lc.children[child_name].exclude = True
+      else:
+        root.children[name].exclude = True
+    return "ShadowLayer"
