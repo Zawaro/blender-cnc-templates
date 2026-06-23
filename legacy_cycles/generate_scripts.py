@@ -54,7 +54,7 @@ def generate_scripts():
     if render_type == 'Reset':
       base += 'bpy.context.scene.node_tree.nodes["Alpha"].check = False\r\n'
 
-    filename = 'Render.{}.txt'.format(render_type)
+    filename = 'Cycles.Render.{}.txt'.format(render_type)
     output = os.path.join(output_path, filename)
 
     print(output)
