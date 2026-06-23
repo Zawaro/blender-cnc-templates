@@ -19,6 +19,7 @@ shared/
   compat.py              # BaseCompat interface + get_compat() factory
   compat_279.py          # Blender 2.79 adapters
   compat_280.py          # Blender 2.80–2.92 adapters
+  compat_293.py          # Blender 2.93 adapters (CryptomatteV2 + Shader to RGB)
   compat_300.py          # Blender 3.0 adapters
   compat_420.py          # Blender 4.2 adapters
   compat_500.py          # Blender 5.0 adapters
@@ -84,8 +85,8 @@ All Blender API differences across versions (2.79–5.1) are abstracted through 
 - **Material transparency**: `blend_method`/`shadow_method` vs `surface_render_method`
 - **Light creation**: `lamp_add` (2.79) vs `light_add` (2.80+)
 - **Eevee settings**: GTAO/TAA/SSR (2.80–4.x) vs `use_shadows` only (5.0)
-- **Cryptomatte**: `has_cryptomatte()` returns False for 2.79/2.80, True for 3.0+
-- **Shader to RGB**: `has_shader_to_rgb()` returns False for 2.79/2.80, True for 3.0+
+- **Cryptomatte**: `has_cryptomatte()` returns False for 2.79/2.80–2.92, True for 2.93+
+- **Shader to RGB**: `has_shader_to_rgb()` returns False for 2.79/2.80–2.92, True for 2.93+
 
 ### Compositing (three methods)
 
@@ -149,5 +150,5 @@ uv run pytest tests/ -v
 - Eevee never had Object Index, Material Index, or Cryptomatte in any version. The ShadowLayer approach (2 view layers) works around this for 2.80–2.92.
 - `CompositorNodeCryptomatteV2` was introduced in Blender 3.0. Before that, only `CompositorNodeCryptomatte` (4 inputs) exists.
 - `eevee/world_materials.py` has `_set_mapping()` helper because Mapping node inputs differ: 1 input (Vector) in 2.80, 3 inputs (Location/Rotation/Scale) in 2.90+.
-- `compat_280.py` overrides `has_cryptomatte() → False` and `has_shader_to_rgb() → False` because Eevee 2.80 lacks these features.
+- `compat_280.py` overrides `has_cryptomatte() → False` and `has_shader_to_rgb() → False` because Eevee 2.80–2.92 lacks these features. 2.93 has its own `compat_293.py` that returns True for both.
 - All shared modules must be Python 3.5 compatible for legacy_cycles (no f-strings, no variable annotations, no dataclass).
