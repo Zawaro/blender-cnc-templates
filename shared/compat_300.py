@@ -1,4 +1,4 @@
-from __future__ import annotations
+from typing import Optional, Tuple
 
 from .compat import BaseCompat
 
@@ -40,7 +40,7 @@ class Compat300(BaseCompat):
   def get_invert_color_input(self) -> int:
     return 1
 
-  def get_mix_color_inputs(self) -> tuple[int, int]:
+  def get_mix_color_inputs(self) -> Tuple[int, int]:
     return (1, 2)
 
   def get_mix_output(self) -> int:
@@ -140,14 +140,14 @@ class Compat300(BaseCompat):
   def get_sky_density_property(self) -> str:
     return "dust_density"
 
-  def get_sky_type_value(self) -> str | None:
+  def get_sky_type_value(self) -> Optional[str]:
     return None
 
   def compositor_switch_toggle(self, name: str, value: bool) -> str:
-    return f'bpy.context.scene.node_tree.nodes["{name}"].check = {value}'
+    return 'bpy.context.scene.node_tree.nodes["{}"].check = {}'.format(name, value)
 
   def alpha_toggle(self, value: bool) -> str:
-    return f'bpy.context.scene.node_tree.nodes["Alpha"].check = {value}'
+    return 'bpy.context.scene.node_tree.nodes["Alpha"].check = {}'.format(value)
 
   def get_engine_string(self, engine_key: str) -> str:
     if engine_key == "CYCLES":

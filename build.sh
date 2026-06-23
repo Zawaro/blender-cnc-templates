@@ -16,7 +16,13 @@ if [[ -f "$ENV_FILE" ]]; then
     echo
 fi
 
-# --- 1) Prompt for engine group / version folder ---
+# --- 1) Compute build number from git commit count ---
+BUILD_NUMBER=$(git rev-list --count HEAD 2>/dev/null || echo "0")
+export BUILD_NUMBER
+echo "Build number: $BUILD_NUMBER"
+echo
+
+# --- 2) Prompt for engine group / version folder ---
 engines=("legacy" "legacy_cycles" "eevee" "cyclesx" "eevee_next" "hi_five")
 echo "Select Blender engine group:"
 select engine in "${engines[@]}"; do
@@ -34,7 +40,7 @@ case "$engine" in
     "hi_five")        env_var="BLENDER_HI_FIVE";        ver_min=5.0;  ver_max=6.0 ;;
 esac
 
-# --- 2) Resolve Blender executable ---
+# --- 3) Resolve Blender executable ---
 blender_exec=""
 
 # Try .env path first
@@ -125,7 +131,7 @@ fi
 
 echo
 
-# --- 3) Ensure version folder exists ---
+# --- 4) Ensure version folder exists ---
 if [[ ! -d "./$engine" ]]; then
     echo "❌ Version folder './$engine' not found!"
     exit 1
@@ -135,7 +141,7 @@ ver_dir="./$engine"
 echo "Using version folder: $ver_dir"
 echo
 
-# --- 4) Ensure .venv exists for this version ---
+# --- 5) Ensure .venv exists for this version ---
 if [[ ! -d "$ver_dir/.venv" ]]; then
     echo "No .venv found for $engine — running bootstrap.sh"
     ./bootstrap.sh
@@ -145,7 +151,7 @@ fi
 echo "Activating $ver_dir/.venv"
 source "$ver_dir/.venv/bin/activate"
 
-# --- 5) Install dependencies from version folder ---
+# --- 6) Install dependencies from version folder ---
 if [[ -f "$ver_dir/requirements.txt" ]]; then
     echo "Installing dependencies from $ver_dir/requirements.txt …"
     uv pip install -r "$ver_dir/requirements.txt"
@@ -155,7 +161,7 @@ fi
 
 echo
 
-# --- 6) Run generate_scripts.py ---
+# --- 7) Run generate_scripts.py ---
 if [[ -f "$ver_dir/generate_scripts.py" ]]; then
     echo "Running $ver_dir/generate_scripts.py …"
     uv run python "$ver_dir/generate_scripts.py"
@@ -165,7 +171,7 @@ fi
 
 echo
 
-# --- 7) Run Blender with main.py ---
+# --- 8) Run Blender with main.py ---
 if [[ -f "$ver_dir/main.py" ]]; then
     echo "Running Blender headlessly for $engine …"
     "$blender_exec" -b --python "$ver_dir/main.py"
@@ -173,21 +179,32 @@ else
     echo "No main.py in $ver_dir — nothing to run."
 fi
 
-# --- 8) Archive generated .blend files using zip if available, otherwise install py7zr Python lib ---
-if hash zip > /dev/null 2>/dev/null; then
-    for f in release/*.blend; do
-        base=${f%%.*}
-        zip_file="${base}.7z"
-        if [ ! -e "$zip_file" ]; then
-            echo "Creating archive $zip_file …"
-            zip -j "$zip_file" "$f"
-        else
-            echo "Archive $zip_file already exists – skipping."
-        fi
-    done
-else
-    echo "No zip utility found – install via your package manager (e.g., apt‑get install zip)."
+# --- 9) Verify archive tools are available ---
+if ! hash zip > /dev/null 2>/dev/null; then
+    echo "❌ 'zip' not found — install via your package manager (e.g. apt-get install zip)."
+    exit 1
 fi
+if ! hash 7z > /dev/null 2>/dev/null; then
+    echo "❌ '7z' not found — install via your package manager (e.g. apt-get install p7zip-full)."
+    exit 1
+fi
+
+# --- 10) Archive generated .blend files ---
+for f in release/*.blend; do
+    base=${f%%.*}
+    zip_file="${base}.zip"
+    sevenz_file="${base}.7z"
+
+    if [ ! -e "$zip_file" ]; then
+        echo "Creating $zip_file …"
+        zip -j "$zip_file" "$f"
+    fi
+
+    if [ ! -e "$sevenz_file" ]; then
+        echo "Creating $sevenz_file …"
+        7z a -t7z -mx=9 "$sevenz_file" "$f"
+    fi
+done
 
 echo
 echo "✅ Build complete for $engine!"

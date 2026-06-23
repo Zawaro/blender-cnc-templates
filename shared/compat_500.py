@@ -1,4 +1,4 @@
-from __future__ import annotations
+from typing import Optional, Tuple
 
 from .compat import BaseCompat
 
@@ -12,6 +12,8 @@ class Compat500(BaseCompat):
   COMBINE_COLOR_NODE = "CompositorNodeCombineColor"
   MIX_NODE = "ShaderNodeMix"
   SEPARATE_RGB_NODE = "ShaderNodeSeparateColor"
+  COMPOSITOR_MATH_NODE = "ShaderNodeMath"
+  COMPOSITOR_VALUATORGB_NODE = "ShaderNodeValToRGB"
 
   def init_compositor(self, scene) -> None:
     import bpy
@@ -50,7 +52,7 @@ class Compat500(BaseCompat):
   def get_invert_color_input(self) -> int:
     return 0
 
-  def get_mix_color_inputs(self) -> tuple[int, int]:
+  def get_mix_color_inputs(self) -> Tuple[int, int]:
     return (6, 7)
 
   def get_mix_output(self) -> int:
@@ -130,14 +132,14 @@ class Compat500(BaseCompat):
   def get_sky_density_property(self) -> str:
     return "aerosol_density"
 
-  def get_sky_type_value(self) -> str | None:
+  def get_sky_type_value(self) -> Optional[str]:
     return "SINGLE_SCATTERING"
 
   def compositor_switch_toggle(self, name: str, value: bool) -> str:
-    return f'bpy.context.scene.compositing_node_group.nodes["{name}"].inputs[0].default_value = {value}'
+    return 'bpy.context.scene.compositing_node_group.nodes["{}"].inputs[0].default_value = {}'.format(name, value)
 
   def alpha_toggle(self, value: bool) -> str:
-    return f'bpy.context.scene.compositing_node_group.nodes["Alpha"].inputs[0].default_value = {value}'
+    return 'bpy.context.scene.compositing_node_group.nodes["Alpha"].inputs[0].default_value = {}'.format(value)
 
   def get_engine_string(self, engine_key: str) -> str:
     if engine_key == "CYCLES":
