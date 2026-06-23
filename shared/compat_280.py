@@ -4,7 +4,7 @@ from .compat import BaseCompat
 
 
 class Compat280(BaseCompat):
-  """Blender 2.80-2.93 (Eevee) compatibility layer."""
+  """Blender 2.80-2.92 (Eevee) compatibility layer."""
 
   VERSION = (2, 80, 0)
 
@@ -140,7 +140,7 @@ class Compat280(BaseCompat):
     return "View Layer"
 
   def set_view_layer_denoising(self, scene, enabled: bool = True) -> None:
-    vl = scene.view_layers["View Layer"]
+    vl = scene.view_layers[self.get_view_layer_name()]
     vl.cycles.use_denoising = enabled
     vl.cycles.denoising_radius = 0.5
     vl.cycles.denoising_strength = 0.5

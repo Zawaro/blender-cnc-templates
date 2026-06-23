@@ -144,7 +144,7 @@ class Compat500(BaseCompat):
   def get_engine_string(self, engine_key: str) -> str:
     if engine_key == "CYCLES":
       return "CYCLES"
-    return "BLENDER_EEVEE"
+    return "BLENDER_EEVEE_NEXT"
 
   def has_collections(self) -> bool:
     return True

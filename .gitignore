@@ -14,6 +14,7 @@ cyclesx/scripts
 hi_five/scripts
 legacy/scripts
 legacy_cycles/scripts
+legacy_eevee/scripts
 
 # Build releases
 release

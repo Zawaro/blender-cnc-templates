@@ -17,9 +17,9 @@ def RA2_World(world_texture_path, world_texture_name, suffix):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node01.rotation = (0, 0, -1.22173)
+  mapping_node01.inputs[2].default_value = (0, 0, -1.22173)
   mapping_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node02.location = (0, 0.3)
+  mapping_node02.inputs[1].default_value = (0, 0, 0.3)
   # Recycle the same world texture file instead of loading new one again and again
   data_image = bpy.data.images.get(world_texture_name)
   if not data_image:
@@ -84,9 +84,9 @@ def RA1_World(world_texture_path, world_texture_name, suffix):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node01.rotation = (0, 0, -1.22173)
+  mapping_node01.inputs[2].default_value = (0, 0, -1.22173)
   mapping_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node02.location = (0, 0.3)
+  mapping_node02.inputs[1].default_value = (0, 0, 0.3)
   # Recycle the same world texture file instead of loading new one again and again
   data_image = bpy.data.images.get(world_texture_name)
   if not data_image:
@@ -154,7 +154,7 @@ def RW_World(world_texture_path, world_texture_name, suffix):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node.rotation = (0, 0, -1.22173)
+  mapping_node.inputs[2].default_value = (0, 0, -1.22173)
   # Recycle the same world texture file instead of loading new one again and again
   data_image = bpy.data.images.get(world_texture_name)
   if not data_image:
@@ -214,7 +214,7 @@ def TS_World(world_texture_path, world_texture_name, suffix):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node.rotation = (0, 0, -1.22173)
+  mapping_node.inputs[2].default_value = (0, 0, -1.22173)
   # Recycle the same world texture file instead of loading new one again and again
   data_image = bpy.data.images.get(world_texture_name)
   if not data_image:
@@ -274,7 +274,7 @@ def D2K_World(world_texture_path, world_texture_name, suffix):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node.rotation = (0, 0, -1.22173)
+  mapping_node.inputs[2].default_value = (0, 0, -1.22173)
   # Recycle the same world texture file instead of loading new one again and again
   data_image = bpy.data.images.get(world_texture_name)
   if not data_image:
@@ -331,9 +331,9 @@ def RM_World(world_texture_path, world_texture_name, suffix):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node01.rotation = (0, 0, -1.22173)
+  mapping_node01.inputs[2].default_value = (0, 0, -1.22173)
   mapping_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node02.location = (0, 0.3)
+  mapping_node02.inputs[1].default_value = (0, 0, 0.3)
   # Recycle the same world texture file instead of loading new one again and again
   data_image = bpy.data.images.get(world_texture_name)
   if not data_image:

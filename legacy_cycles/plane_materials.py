@@ -1,9 +1,18 @@
 import bpy
 
+
+def _remove_default_shader(mat):
+  nodes = mat.node_tree.nodes
+  for name in ["Principled BSDF", "Diffuse BSDF"]:
+    if name in nodes:
+      nodes.remove(nodes[name])
+      return
+
+
 def Plane_Ambient(suffix):
   ambient_mat = bpy.data.materials.new(name="Plane.ambient."+suffix)
   ambient_mat.use_nodes = True
-  ambient_mat.node_tree.nodes.remove(ambient_mat.node_tree.nodes['Principled BSDF'])
+  _remove_default_shader(ambient_mat)
   output_node = ambient_mat.node_tree.nodes["Material Output"]
   lightpath_node = ambient_mat.node_tree.nodes.new('ShaderNodeLightPath')
   diffuse_node01 = ambient_mat.node_tree.nodes.new('ShaderNodeBsdfDiffuse')
@@ -32,7 +41,7 @@ def Plane_Ambient(suffix):
 def Plane_Blue(suffix):
   blue_mat = bpy.data.materials.new(name="Plane.blue."+suffix)
   blue_mat.use_nodes = True
-  blue_mat.node_tree.nodes.remove(blue_mat.node_tree.nodes['Principled BSDF'])
+  _remove_default_shader(blue_mat)
   output_node = blue_mat.node_tree.nodes["Material Output"]
   lightpath_node = blue_mat.node_tree.nodes.new('ShaderNodeLightPath')
   diffuse_node01 = blue_mat.node_tree.nodes.new('ShaderNodeBsdfDiffuse')
@@ -63,7 +72,7 @@ def Plane_Blue(suffix):
 def Plane_Grey(suffix):
   grey_mat = bpy.data.materials.new(name="Plane.grey."+suffix)
   grey_mat.use_nodes = True
-  grey_mat.node_tree.nodes.remove(grey_mat.node_tree.nodes['Principled BSDF'])
+  _remove_default_shader(grey_mat)
   output_node = grey_mat.node_tree.nodes["Material Output"]
   lightpath_node = grey_mat.node_tree.nodes.new('ShaderNodeLightPath')
   diffuse_node01 = grey_mat.node_tree.nodes.new('ShaderNodeBsdfDiffuse')
@@ -87,7 +96,7 @@ def Plane_Grey(suffix):
 def Plane_Holdout(suffix):
   holdout_mat = bpy.data.materials.new(name="Plane.holdout."+suffix)
   holdout_mat.use_nodes = True
-  holdout_mat.node_tree.nodes.remove(holdout_mat.node_tree.nodes['Principled BSDF'])
+  _remove_default_shader(holdout_mat)
   output_node = holdout_mat.node_tree.nodes["Material Output"]
   lightpath_node = holdout_mat.node_tree.nodes.new('ShaderNodeLightPath')
   diffuse_node01 = holdout_mat.node_tree.nodes.new('ShaderNodeBsdfDiffuse')
@@ -116,7 +125,7 @@ def Plane_Holdout(suffix):
 def Plane_Shadow(suffix):
   shadow_mat = bpy.data.materials.new(name="Plane.shadow."+suffix)
   shadow_mat.use_nodes = True
-  shadow_mat.node_tree.nodes.remove(shadow_mat.node_tree.nodes['Principled BSDF'])
+  _remove_default_shader(shadow_mat)
   output_node01 = shadow_mat.node_tree.nodes["Material Output"]
   output_node01.target = 'CYCLES'
   lightpath_node = shadow_mat.node_tree.nodes.new('ShaderNodeLightPath')
