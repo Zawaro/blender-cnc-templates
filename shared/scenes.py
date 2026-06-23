@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 import bpy
+from typing import Dict
 
 from . import constants
 from .node_arrange import arrange_nodes
@@ -8,7 +7,7 @@ from .compat import BaseCompat
 
 # World material classes are registered by each version's main.py
 # before instantiating scenes.  Lookup: suffix -> world_class.
-_WORLD_REGISTRY: dict[str, type] = {}
+_WORLD_REGISTRY = {}
 
 
 def register_world(suffix: str, world_cls: type) -> None:
@@ -18,7 +17,7 @@ def register_world(suffix: str, world_cls: type) -> None:
 def _get_world(suffix: str, world_cls_args: tuple, compat) -> object:
   cls = _WORLD_REGISTRY.get(suffix)
   if cls is None:
-    raise RuntimeError(f"No world class registered for suffix '{suffix}'")
+    raise RuntimeError("No world class registered for suffix '{}'".format(suffix))
   return cls(*world_cls_args, compat)
 
 
@@ -324,6 +323,7 @@ class BaseScene:
     shadow2_obj = _create_plane(self.compat, "Plane.shadow2." + self.suffix, (0, 0, -0.01), shadow_mat)
     self.compat.set_shadow_catcher(shadow2_obj, True)
     self.compat.set_material_transparency(shadow2_obj.active_material)
+    shadow2_obj.pass_index = self.compat.get_shadow_pass_index()
 
     if self.compat.has_collections():
       bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children[self.full_name + " Template"].children[self.full_name + " Shadow"]
@@ -331,6 +331,7 @@ class BaseScene:
     shadow_obj = _create_plane(self.compat, "Plane.shadow." + self.suffix, (0, 0, -0.01), shadow_mat)
     self.compat.set_shadow_catcher(shadow_obj, True)
     self.compat.set_material_transparency(shadow_obj.active_material)
+    shadow_obj.pass_index = self.compat.get_shadow_pass_index()
 
     if self.compat.has_collections():
       bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children[self.full_name + " Template"].children[self.full_name + " Holdout"]
@@ -394,7 +395,7 @@ class BaseScene:
       ag_comb.mode = "HSV"
     ag_comb.location = (200, 200)
 
-    ag_math = alpha_group.nodes.new("ShaderNodeMath")
+    ag_math = alpha_group.nodes.new(self.compat.COMPOSITOR_MATH_NODE)
     ag_math.location = (0, 0)
     ag_math.operation = "GREATER_THAN"
     ag_math.inputs[1].default_value = 0.325
@@ -411,8 +412,13 @@ class BaseScene:
     alpha_convert = nodes.new("CompositorNodeGroup")
     alpha_convert.node_tree = alpha_group
 
-    cryptomatte = nodes.new("CompositorNodeCryptomatteV2")
-    cryptomatte.matte_id = "Plane.shadow.{}".format(self.suffix)
+    if self.compat.has_cryptomatte():
+      cryptomatte = nodes.new("CompositorNodeCryptomatteV2")
+      cryptomatte.matte_id = "Plane.shadow.{}".format(self.suffix)
+    else:
+      idmask = nodes.new("CompositorNodeIDMask")
+      idmask.index = self.compat.get_shadow_pass_index()
+      idmask.use_antialiasing = True
 
     sep_hsva = nodes.new(sep_col_type)
     if hasattr(sep_hsva, "mode"):
@@ -431,7 +437,7 @@ class BaseScene:
     multiply.blend_type = "MULTIPLY"
     multiply.inputs[0].default_value = 1
 
-    colorramp = nodes.new("ShaderNodeValToRGB")
+    colorramp = nodes.new(self.compat.COMPOSITOR_VALUATORGB_NODE)
     colorramp.color_ramp.elements[0].position = self.colorramp_position01
     colorramp.color_ramp.elements[0].color = self.colorramp_color01
     colorramp.color_ramp.elements[1].position = self.colorramp_position02
@@ -457,39 +463,48 @@ class BaseScene:
     mix_out = self.compat.get_mix_output()
 
     links.new(switches["Preview.Eevee"].outputs[0], out_node.inputs[0])
-    links.new(switches["Preview.Cycles"].outputs[0], switches["Preview.Eevee"].inputs[1])
-    links.new(switches["Shadow.Eevee"].outputs[0], switches["Preview.Cycles"].inputs[1])
-    links.new(switches["Shadow.Cycles"].outputs[0], switches["Shadow.Eevee"].inputs[1])
-    links.new(switches["Buildup.Eevee"].outputs[0], switches["Shadow.Cycles"].inputs[1])
-    links.new(switches["Buildup.Cycles"].outputs[0], switches["Buildup.Eevee"].inputs[1])
-    links.new(switches["Object"].outputs[0], switches["Buildup.Cycles"].inputs[1])
+    links.new(switches["Preview.Cycles"].outputs[0], switches["Preview.Eevee"].inputs[0])
+    links.new(switches["Shadow.Eevee"].outputs[0], switches["Preview.Cycles"].inputs[0])
+    links.new(switches["Shadow.Cycles"].outputs[0], switches["Shadow.Eevee"].inputs[0])
+    links.new(switches["Buildup.Eevee"].outputs[0], switches["Shadow.Cycles"].inputs[0])
+    links.new(switches["Buildup.Cycles"].outputs[0], switches["Buildup.Eevee"].inputs[0])
+    links.new(switches["Object"].outputs[0], switches["Buildup.Cycles"].inputs[0])
 
-    links.new(rl_node.outputs[0], switches["Object"].inputs[1])
+    links.new(rl_node.outputs[0], switches["Object"].inputs[0])
     links.new(rl_node.outputs[0], alpha_convert.inputs[0])
-    links.new(alpha_convert.outputs[0], ao01.inputs[1])
+    links.new(alpha_convert.outputs[0], ao01.inputs[2])
 
-    links.new(rl_node.outputs[2], cryptomatte.inputs[0])
-    links.new(cryptomatte.outputs[2], sep_hsva.inputs[0])
-    links.new(sep_hsva.outputs[1], invert.inputs[invert_input])
-    links.new(cryptomatte.outputs[1], screen.inputs[mix_a])
-    links.new(invert.outputs[0], screen.inputs[mix_b])
-    links.new(screen.outputs[mix_out], multiply.inputs[mix_b])
-    links.new(alpha_convert.outputs[1], multiply.inputs[mix_a])
-    links.new(multiply.outputs[mix_out], colorramp.inputs[0])
-    links.new(colorramp.outputs[0], ao02.inputs[1])
+    if self.compat.has_cryptomatte():
+      links.new(rl_node.outputs[2], cryptomatte.inputs[0])
+      links.new(cryptomatte.outputs[2], sep_hsva.inputs[0])
+      links.new(sep_hsva.outputs[1], invert.inputs[invert_input])
+      links.new(cryptomatte.outputs[1], screen.inputs[mix_a])
+      links.new(invert.outputs[0], screen.inputs[mix_b])
+      links.new(screen.outputs[mix_out], multiply.inputs[mix_b])
+      links.new(alpha_convert.outputs[1], multiply.inputs[mix_a])
+      links.new(multiply.outputs[mix_out], colorramp.inputs[0])
+      links.new(colorramp.outputs[0], ao02.inputs[1])
+    else:
+      links.new(rl_node.outputs[self.compat.get_indexob_output_index()], idmask.inputs[0])
+      links.new(idmask.outputs[0], sep_hsva.inputs[0])
+      links.new(sep_hsva.outputs[1], invert.inputs[invert_input])
+      links.new(invert.outputs[0], multiply.inputs[mix_b])
+      links.new(alpha_convert.outputs[1], multiply.inputs[mix_a])
+      links.new(multiply.outputs[mix_out], colorramp.inputs[0])
+      links.new(colorramp.outputs[0], ao02.inputs[1])
 
-    links.new(rgb01.outputs[0], switches["Alpha"].inputs[1])
-    links.new(rgb02.outputs[0], switches["Alpha"].inputs[2])
-    links.new(switches["Alpha"].outputs[0], ao01.inputs[0])
-    links.new(switches["Alpha"].outputs[0], ao02.inputs[0])
+    links.new(rgb01.outputs[0], switches["Alpha"].inputs[0])
+    links.new(rgb02.outputs[0], switches["Alpha"].inputs[1])
+    links.new(switches["Alpha"].outputs[0], ao01.inputs[2])
+    links.new(switches["Alpha"].outputs[0], ao02.inputs[2])
 
-    links.new(ao01.outputs[0], switches["Object"].inputs[2])
-    links.new(ao01.outputs[0], switches["Buildup.Cycles"].inputs[2])
-    links.new(ao01.outputs[0], switches["Buildup.Eevee"].inputs[2])
-    links.new(ao02.outputs[0], switches["Shadow.Cycles"].inputs[2])
-    links.new(ao02.outputs[0], switches["Shadow.Eevee"].inputs[2])
-    links.new(ao01.outputs[0], switches["Preview.Cycles"].inputs[2])
-    links.new(ao01.outputs[0], switches["Preview.Eevee"].inputs[2])
+    links.new(ao01.outputs[0], switches["Object"].inputs[1])
+    links.new(ao01.outputs[0], switches["Buildup.Cycles"].inputs[1])
+    links.new(ao01.outputs[0], switches["Buildup.Eevee"].inputs[1])
+    links.new(ao02.outputs[0], switches["Shadow.Cycles"].inputs[1])
+    links.new(ao02.outputs[0], switches["Shadow.Eevee"].inputs[1])
+    links.new(ao01.outputs[0], switches["Preview.Cycles"].inputs[1])
+    links.new(ao01.outputs[0], switches["Preview.Eevee"].inputs[1])
 
     arrange_nodes([tree])
 
