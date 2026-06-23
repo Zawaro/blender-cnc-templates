@@ -251,7 +251,7 @@ class BaseCompat(ABC):
 
 def get_compat(major: int, minor: int) -> BaseCompat:
   """Return the compat instance for the given Blender version."""
-  if major <= 2 and minor <= 79:
+  if major == 2 and minor <= 79:
     from .compat_279 import Compat279
     return Compat279()
   elif major == 2 and minor >= 80 and minor < 93:
