@@ -5,6 +5,22 @@ current_path = os.path.dirname(os.path.realpath(__file__))
 
 BASE_COLOR = (0, 0, 0)
 
+def _set_mapping(node, location=None, rotation=None, scale=None):
+  if len(node.inputs) > 2:
+    if location is not None:
+      node.inputs[1].default_value = location
+    if rotation is not None:
+      node.inputs[2].default_value = rotation
+    if scale is not None:
+      node.inputs[3].default_value = scale
+  else:
+    if location is not None:
+      node.translation = location
+    if rotation is not None:
+      node.rotation = rotation
+    if scale is not None:
+      node.scale = scale
+
 def RA2_World(world_texture_path, world_texture_name, suffix):
   tex_dir = os.path.join(os.path.dirname(current_path), world_texture_path)
   
@@ -17,9 +33,9 @@ def RA2_World(world_texture_path, world_texture_name, suffix):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node01.inputs[2].default_value = (0, 0, -1.22173)
+  _set_mapping(mapping_node01, rotation=(0, 0, -1.22173))
   mapping_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node02.inputs[1].default_value = (0, 0, 0.3)
+  _set_mapping(mapping_node02, location=(0, 0, 0.3))
   # Recycle the same world texture file instead of loading new one again and again
   data_image = bpy.data.images.get(world_texture_name)
   if not data_image:
@@ -84,9 +100,9 @@ def RA1_World(world_texture_path, world_texture_name, suffix):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node01.inputs[2].default_value = (0, 0, -1.22173)
+  _set_mapping(mapping_node01, rotation=(0, 0, -1.22173))
   mapping_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node02.inputs[1].default_value = (0, 0, 0.3)
+  _set_mapping(mapping_node02, location=(0, 0, 0.3))
   # Recycle the same world texture file instead of loading new one again and again
   data_image = bpy.data.images.get(world_texture_name)
   if not data_image:
@@ -146,17 +162,12 @@ def RW_World(world_texture_path, world_texture_name, suffix):
   bpy.context.scene.world = world
   bpy.context.scene.world.horizon_color = (0.0998987, 0.0684781, 0.0318961)
   bpy.context.scene.world.use_nodes = True
-  output_node01 = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
-  if hasattr(output_node01, 'target'):
-    output_node01.target = 'EEVEE'
-  world.node_tree.links.remove(output_node01.inputs[0].links[0])
-  output_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeOutputWorld")
-  if hasattr(output_node02, 'target'):
-    output_node02.target = 'CYCLES'
+  output_node = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
+  world.node_tree.links.remove(output_node.inputs[0].links[0])
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node.inputs[2].default_value = (0, 0, -1.22173)
+  _set_mapping(mapping_node, rotation=(0, 0, -1.22173))
   # Recycle the same world texture file instead of loading new one again and again
   data_image = bpy.data.images.get(world_texture_name)
   if not data_image:
@@ -167,35 +178,24 @@ def RW_World(world_texture_path, world_texture_name, suffix):
   huesat_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeHueSaturation")
   huesat_node01.inputs[1].default_value = 0.5
   huesat_node01.inputs[2].default_value = 0.35
-  huesat_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeHueSaturation")
-  huesat_node02.inputs[1].default_value = 0.5
-  huesat_node02.inputs[2].default_value = 0.25
   background_node01 = bpy.data.worlds["World."+suffix].node_tree.nodes["Background"]
   background_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeBackground")
   background_node03 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeBackground")
   background_node03.inputs[0].default_value = (0, 0, 1, 1)
-  background_node04 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeBackground")
   mixshader_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMixShader")
-  mixshader_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMixShader")
   mixshader_node03 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMixShader")
 
-  world.node_tree.links.new(mixshader_node01.outputs[0], output_node01.inputs[0])
-  world.node_tree.links.new(mixshader_node02.outputs[0], output_node02.inputs[0])
+  world.node_tree.links.new(mixshader_node01.outputs[0], output_node.inputs[0])
   world.node_tree.links.new(mixshader_node03.outputs[0], mixshader_node01.inputs[2])
-  world.node_tree.links.new(mixshader_node03.outputs[0], mixshader_node02.inputs[2])
   world.node_tree.links.new(lightpath_node.outputs[0], mixshader_node03.inputs[0])
   world.node_tree.links.new(lightpath_node.outputs[3], mixshader_node01.inputs[0])
-  world.node_tree.links.new(lightpath_node.outputs[3], mixshader_node02.inputs[0])
   world.node_tree.links.new(background_node01.outputs[0], mixshader_node01.inputs[1])
   world.node_tree.links.new(background_node02.outputs[0], mixshader_node03.inputs[1])
   world.node_tree.links.new(background_node03.outputs[0], mixshader_node03.inputs[2])
-  world.node_tree.links.new(background_node04.outputs[0], mixshader_node02.inputs[1])
   world.node_tree.links.new(huesat_node01.outputs[0], background_node01.inputs[0])
-  world.node_tree.links.new(huesat_node02.outputs[0], background_node04.inputs[0])
   world.node_tree.links.new(tex_env_node.outputs[0], background_node02.inputs[0])
 
   world.node_tree.links.new(tex_env_node.outputs[0], huesat_node01.inputs[0])
-  world.node_tree.links.new(tex_env_node.outputs[0], huesat_node02.inputs[0])
   world.node_tree.links.new(mapping_node.outputs[0], tex_env_node.inputs[0])
   world.node_tree.links.new(tex_coord_node.outputs[0], mapping_node.inputs[0])
 
@@ -208,17 +208,12 @@ def TS_World(world_texture_path, world_texture_name, suffix):
   bpy.context.scene.world = world
   bpy.context.scene.world.horizon_color = (0.191202, 0.191202, 0.191202)
   bpy.context.scene.world.use_nodes = True
-  output_node01 = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
-  if hasattr(output_node01, 'target'):
-    output_node01.target = 'EEVEE'
-  world.node_tree.links.remove(output_node01.inputs[0].links[0])
-  output_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeOutputWorld")
-  if hasattr(output_node02, 'target'):
-    output_node02.target = 'CYCLES'
+  output_node = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
+  world.node_tree.links.remove(output_node.inputs[0].links[0])
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node.inputs[2].default_value = (0, 0, -1.22173)
+  _set_mapping(mapping_node, rotation=(0, 0, -1.22173))
   # Recycle the same world texture file instead of loading new one again and again
   data_image = bpy.data.images.get(world_texture_name)
   if not data_image:
@@ -236,28 +231,20 @@ def TS_World(world_texture_path, world_texture_name, suffix):
   background_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeBackground")
   background_node03 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeBackground")
   background_node03.inputs[0].default_value = (0, 0, 1, 1)
-  background_node04 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeBackground")
   mixshader_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMixShader")
   mixshader_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMixShader")
-  mixshader_node03 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMixShader")
 
-  world.node_tree.links.new(mixshader_node01.outputs[0], output_node01.inputs[0])
-  world.node_tree.links.new(mixshader_node02.outputs[0], output_node02.inputs[0])
-  world.node_tree.links.new(mixshader_node03.outputs[0], mixshader_node01.inputs[2])
-  world.node_tree.links.new(mixshader_node03.outputs[0], mixshader_node02.inputs[2])
-  world.node_tree.links.new(lightpath_node.outputs[0], mixshader_node03.inputs[0])
+  world.node_tree.links.new(mixshader_node01.outputs[0], output_node.inputs[0])
+  world.node_tree.links.new(mixshader_node02.outputs[0], mixshader_node01.inputs[2])
+  world.node_tree.links.new(lightpath_node.outputs[0], mixshader_node02.inputs[0])
   world.node_tree.links.new(lightpath_node.outputs[3], mixshader_node01.inputs[0])
-  world.node_tree.links.new(lightpath_node.outputs[3], mixshader_node02.inputs[0])
   world.node_tree.links.new(background_node01.outputs[0], mixshader_node01.inputs[1])
-  world.node_tree.links.new(background_node02.outputs[0], mixshader_node03.inputs[1])
-  world.node_tree.links.new(background_node03.outputs[0], mixshader_node03.inputs[2])
-  world.node_tree.links.new(background_node04.outputs[0], mixshader_node02.inputs[1])
+  world.node_tree.links.new(background_node02.outputs[0], mixshader_node02.inputs[1])
+  world.node_tree.links.new(background_node03.outputs[0], mixshader_node02.inputs[2])
   world.node_tree.links.new(huesat_node01.outputs[0], background_node01.inputs[0])
-  world.node_tree.links.new(huesat_node02.outputs[0], background_node04.inputs[0])
   world.node_tree.links.new(tex_env_node.outputs[0], background_node02.inputs[0])
 
   world.node_tree.links.new(tex_env_node.outputs[0], huesat_node01.inputs[0])
-  world.node_tree.links.new(tex_env_node.outputs[0], huesat_node02.inputs[0])
   world.node_tree.links.new(mapping_node.outputs[0], tex_env_node.inputs[0])
   world.node_tree.links.new(tex_coord_node.outputs[0], mapping_node.inputs[0])
 
@@ -270,17 +257,12 @@ def D2K_World(world_texture_path, world_texture_name, suffix):
   bpy.context.scene.world = world
   bpy.context.scene.world.horizon_color = BASE_COLOR
   bpy.context.scene.world.use_nodes = True
-  output_node01 = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
-  if hasattr(output_node01, 'target'):
-    output_node01.target = 'EEVEE'
-  world.node_tree.links.remove(output_node01.inputs[0].links[0])
-  output_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeOutputWorld")
-  if hasattr(output_node02, 'target'):
-    output_node02.target = 'CYCLES'
+  output_node = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
+  world.node_tree.links.remove(output_node.inputs[0].links[0])
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node.inputs[2].default_value = (0, 0, -1.22173)
+  _set_mapping(mapping_node, rotation=(0, 0, -1.22173))
   # Recycle the same world texture file instead of loading new one again and again
   data_image = bpy.data.images.get(world_texture_name)
   if not data_image:
@@ -298,28 +280,20 @@ def D2K_World(world_texture_path, world_texture_name, suffix):
   background_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeBackground")
   background_node03 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeBackground")
   background_node03.inputs[0].default_value = (0, 0, 1, 1)
-  background_node04 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeBackground")
   mixshader_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMixShader")
   mixshader_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMixShader")
-  mixshader_node03 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMixShader")
 
-  world.node_tree.links.new(mixshader_node01.outputs[0], output_node01.inputs[0])
-  world.node_tree.links.new(mixshader_node02.outputs[0], output_node02.inputs[0])
-  world.node_tree.links.new(mixshader_node03.outputs[0], mixshader_node01.inputs[2])
-  world.node_tree.links.new(mixshader_node03.outputs[0], mixshader_node02.inputs[2])
-  world.node_tree.links.new(lightpath_node.outputs[0], mixshader_node03.inputs[0])
+  world.node_tree.links.new(mixshader_node01.outputs[0], output_node.inputs[0])
+  world.node_tree.links.new(mixshader_node02.outputs[0], mixshader_node01.inputs[2])
+  world.node_tree.links.new(lightpath_node.outputs[0], mixshader_node02.inputs[0])
   world.node_tree.links.new(lightpath_node.outputs[3], mixshader_node01.inputs[0])
-  world.node_tree.links.new(lightpath_node.outputs[3], mixshader_node02.inputs[0])
   world.node_tree.links.new(background_node01.outputs[0], mixshader_node01.inputs[1])
-  world.node_tree.links.new(background_node02.outputs[0], mixshader_node03.inputs[1])
-  world.node_tree.links.new(background_node03.outputs[0], mixshader_node03.inputs[2])
-  world.node_tree.links.new(background_node04.outputs[0], mixshader_node02.inputs[1])
+  world.node_tree.links.new(background_node02.outputs[0], mixshader_node02.inputs[1])
+  world.node_tree.links.new(background_node03.outputs[0], mixshader_node02.inputs[2])
   world.node_tree.links.new(huesat_node01.outputs[0], background_node01.inputs[0])
-  world.node_tree.links.new(huesat_node02.outputs[0], background_node04.inputs[0])
   world.node_tree.links.new(tex_env_node.outputs[0], background_node02.inputs[0])
 
   world.node_tree.links.new(tex_env_node.outputs[0], huesat_node01.inputs[0])
-  world.node_tree.links.new(tex_env_node.outputs[0], huesat_node02.inputs[0])
   world.node_tree.links.new(mapping_node.outputs[0], tex_env_node.inputs[0])
   world.node_tree.links.new(tex_coord_node.outputs[0], mapping_node.inputs[0])
 
@@ -337,9 +311,9 @@ def RM_World(world_texture_path, world_texture_name, suffix):
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node01 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node01.inputs[2].default_value = (0, 0, -1.22173)
+  _set_mapping(mapping_node01, rotation=(0, 0, -1.22173))
   mapping_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
-  mapping_node02.inputs[1].default_value = (0, 0, 0.3)
+  _set_mapping(mapping_node02, location=(0, 0, 0.3))
   # Recycle the same world texture file instead of loading new one again and again
   data_image = bpy.data.images.get(world_texture_name)
   if not data_image:
