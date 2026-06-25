@@ -59,3 +59,53 @@ jobs:
           pytest -p pytest-blender tests/test_plane_materials_bpy.py tests/test_build_utils_bpy.py tests/test_scenes_bpy.py -v
         env:
           BLENDER_EXECUTABLE: ${{ steps.blender.outputs.path }}
+
+  build-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: legacy
+            blender: "2.79"
+          - variant: legacy_cycles
+            blender: "2.79"
+          - variant: legacy_eevee
+            blender: "2.80"
+          - variant: eevee
+            blender: "2.93"
+          - variant: cyclesx
+            blender: "3.6"
+          - variant: eevee_next
+            blender: "4.3"
+          - variant: hi_five
+            blender: "5.1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: astral-sh/setup-uv@v4
+
+      - name: Cache Blender
+        uses: actions/cache@v4
+        with:
+          path: blender-*
+          key: build-blender-${{ matrix.blender }}
+
+      - name: Download Blender
+        id: blender
+        run: |
+          pip install blender-downloader 2>/dev/null
+          echo "path=$(blender-downloader ${{ matrix.blender }} --extract --remove-compressed --print-blender-executable --quiet)" >> $GITHUB_OUTPUT
+
+      - name: Generate scripts
+        run: uv run python ${{ matrix.variant }}/generate_scripts.py
+
+      - name: Build ${{ matrix.variant }}
+        run: ${{ steps.blender.outputs.path }} -b --python ${{ matrix.variant }}/main.py
+
+      - name: Verify output
+        run: ls release/${{ matrix.variant }}/*.blend
