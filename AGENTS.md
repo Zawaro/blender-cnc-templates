@@ -11,10 +11,14 @@ Generates `.blend` scene templates for multiple Blender versions (2.79–5.1). E
   constants.py           # TEMPLATE_PREFIX, TEMPLATE_VARIANT
   main.py                # ~20 lines: compat setup + scene creation + save .blend
   generate_scripts.py    # ~5 lines: delegates to shared/script_gen.py
-  world_materials.py     # (eevee, legacy_eevee only) variant-specific world materials
+  world_materials.py     # (eevee, legacy_eevee, legacy_cycles only) variant-specific world materials
   scripts/               # Generated .txt scripts (gitignored)
   requirements.txt
   README.md
+
+  legacy/ is unique: has its own scene_builder.py, plane_materials.py,
+  compat.py, world_materials.py — does NOT use shared/scenes.py.
+  legacy_cycles/ has a local plane_materials.py.
 shared/
   compat.py              # BaseCompat interface + get_compat() factory
   compat_279.py          # Blender 2.79 adapters
@@ -57,6 +61,7 @@ uv run pytest tests/ -v                        # Run tests (no Blender needed)
 
 | Variant | Blender | Compositing method | Notes |
 |---------|---------|-------------------|-------|
+| legacy | 2.79 | None (internal render) | Unique: own scene_builder.py, no shared/scenes.py |
 | legacy_cycles | 2.79 | IDMask (Object Index) | Cycles only, Python 3.5 compat |
 | legacy_eevee | 2.80–2.92 | ShadowLayer (2 view layers) | Eevee, no CryptomatteV2 |
 | eevee | 2.93 | CryptomatteV2 | Eevee, needs 2.93+ |
@@ -103,6 +108,8 @@ Each variant's `main.py` is ~20 lines:
 2. `register_world(suffix, world_cls)` — register world material classes
 3. `cls(compat)` for each scene class — creates full Blender scene
 4. `load_scripts()` + `setup_text_editor()` + `save_blend()` — finalize
+
+Exception: `legacy/` uses its own `scene_builder.py` with hardcoded camera/light configs per game. It does not import from `shared/scenes.py`.
 
 ### World materials
 
@@ -151,4 +158,5 @@ uv run pytest tests/ -v
 - `CompositorNodeCryptomatteV2` was introduced in Blender 3.0. Before that, only `CompositorNodeCryptomatte` (4 inputs) exists.
 - `eevee/world_materials.py` has `_set_mapping()` helper because Mapping node inputs differ: 1 input (Vector) in 2.80, 3 inputs (Location/Rotation/Scale) in 2.90+.
 - `compat_280.py` overrides `has_cryptomatte() → False` and `has_shader_to_rgb() → False` because Eevee 2.80–2.92 lacks these features. 2.93 has its own `compat_293.py` that returns True for both.
+- `legacy/` does not use the shared scene classes at all — it has its own `scene_builder.py` with hardcoded camera/light configs per game. Do not add shared scene logic there.
 - All shared modules must be Python 3.5 compatible for legacy_cycles (no f-strings, no variable annotations, no dataclass).
