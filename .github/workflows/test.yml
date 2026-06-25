@@ -1,19 +1,22 @@
-name: Test
-
-on: [push, pull_request]
+name: Tests
+on:
+  push:
+  pull_request:
 
 jobs:
-  lint-and-test:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/ruff-action@v3
+
+  non-bpy-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v4
-      - name: Install dependencies
-        run: uv sync --group lint
-      - name: Ruff check
-        run: uv run ruff check .
-      - name: Run tests
-        run: uv run pytest tests/ -v
+      - name: Run non-bpy tests
+        run: uv run pytest tests/ -v --ignore=tests/test_plane_materials_bpy.py --ignore=tests/test_build_utils_bpy.py --ignore=tests/test_scenes_bpy.py
 
   bpy-tests:
     runs-on: ubuntu-latest
@@ -23,17 +26,34 @@ jobs:
         blender-version: ["5.1.2", "4.3.2", "3.6.23", "2.93.18"]
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v4
-      - name: Install Blender
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache Blender
+        uses: actions/cache@v4
+        id: cache-blender
+        with:
+          path: blender-*
+          key: blender-${{ matrix.blender-version }}
+
+      - name: Set Blender path
+        id: blender
         run: |
-          pip install blender-downloader
-          blender-downloader ${{ matrix.blender-version }} -d ./blender -e
-          echo "BLENDERExecutable=./blender/blender" >> $GITHUB_ENV
-      - name: Install pytest in Blender Python
+          pip install blender-downloader 2>/dev/null
+          echo "path=$(blender-downloader ${{ matrix.blender-version }} --extract --remove-compressed --print-blender-executable --quiet)" >> $GITHUB_OUTPUT
+
+      - name: Install deps
         run: |
-          BLENDER_PYTHON=$(./blender/blender -b --python-expr "import sys; print(sys.executable)" 2>/dev/null | head -1)
-          $BLENDER_PYTHON -m pip install pytest
-      - name: Install dependencies
-        run: uv sync --group test
-      - name: Run all tests with Blender
-        run: uv run pytest -p pytest-blender --blender-executable ${{ env.BLENDERExecutable }} tests/ -v
+          pip install pytest pytest-blender
+          BLENDER="${{ steps.blender.outputs.path }}"
+          PYTHON_BLENDER="$(pytest-blender --blender-executable "$BLENDER")"
+          $PYTHON_BLENDER -m ensurepip
+          $PYTHON_BLENDER -m pip install pytest
+
+      - name: Run bpy tests
+        run: |
+          pytest tests/test_plane_materials_bpy.py tests/test_build_utils_bpy.py tests/test_scenes_bpy.py -v
+        env:
+          BLENDER_EXECUTABLE: ${{ steps.blender.outputs.path }}
