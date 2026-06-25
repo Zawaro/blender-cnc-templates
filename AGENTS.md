@@ -133,10 +133,23 @@ Config in `pyproject.toml`: 2-space indent, 200-char line length.
 ## Testing
 
 ```sh
+# Non-bpy tests only (fast, no Blender needed)
 uv run pytest tests/ -v
+
+# All tests including bpy integration (needs Blender)
+uv run pytest -p pytest-blender --blender-executable $BLENDER_EXE tests/ -v
 ```
 
-23 tests covering: compat layer interface, scene name mapping, script generation, version management, env format. All run outside Blender (no bpy dependency).
+Two test tiers:
+- **Non-bpy** (~137 tests): compat interface, compat runtime (mock-based), scene names, script generation, version, env format. All run in any Python.
+- **bpy integration** (~27 tests): plane materials, build utils, BaseScene. Run inside Blender via pytest-blender.
+
+`pyproject.toml` disables pytest-blender by default (`addopts = "-p no:pytest-blender"`). Re-enable with `-p pytest-blender` when running bpy tests.
+
+bpy tests require `pytest` installed in Blender's own Python:
+```sh
+./path/to/blender -b --python-expr "import sys; print(sys.executable)" | xargs -I{} {} -m pip install pytest
+```
 
 ## Key conventions
 
