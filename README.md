@@ -32,6 +32,19 @@ Each version has its own folder with scripts, materials and a small build script
 
 ---
 
+## Testing
+
+```sh
+# Run all tests (no Blender needed)
+uv run pytest tests/ -v
+
+# Run all tests against a specific Blender version
+./test.sh 5.1
+
+# Run all tests against all available Blender versions
+./test.sh --all
+```
+
 
 ## Build with `uv`
 
