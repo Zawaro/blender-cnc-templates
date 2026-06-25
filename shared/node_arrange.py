@@ -1,6 +1,5 @@
 from collections import OrderedDict
 from itertools import repeat
-import bpy
 
 class values():
   average_y = 0
@@ -133,7 +132,6 @@ def nodes_arrange(nodelist, level):
   values.x_last = xpos
 
   # node y positions
-  x = 0
   y = 0
 
   for node in nodelist:
