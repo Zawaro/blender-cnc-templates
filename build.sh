@@ -192,7 +192,7 @@ fi
 
 # --- 10) Archive generated .blend files ---
 for f in "release/$engine"/*.blend; do
-    base=${f%%.*}
+    base=${f%.*}
     zip_file="${base}.zip"
     sevenz_file="${base}.7z"
 
