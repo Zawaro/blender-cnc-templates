@@ -109,13 +109,7 @@ class TestPlaneShadow:
     assert _mat_exists("Plane.shadow." + SUFFIX)
     assert mat.use_nodes is True
 
-  def test_has_cycles_output(self):
-    from shared.plane_materials import Plane_Shadow
-    mat = Plane_Shadow(SUFFIX)
-    outputs = [n for n in mat.node_tree.nodes if n.type == "OUTPUT_MATERIAL"]
-    assert len(outputs) >= 1
-
-  def test_has_eevee_output(self):
+  def test_has_material_outputs(self):
     from shared.plane_materials import Plane_Shadow
     mat = Plane_Shadow(SUFFIX)
     outputs = [n for n in mat.node_tree.nodes if n.type == "OUTPUT_MATERIAL"]

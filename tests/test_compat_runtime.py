@@ -18,32 +18,6 @@ class MockObj:
       setattr(self, k, v)
 
 
-class MockData:
-  """Mock for .data on lights/cameras."""
-
-  def __init__(self, **kwargs):
-    for k, v in kwargs.items():
-      setattr(self, k, v)
-
-
-class MockCyclesVisibility:
-  def __init__(self):
-    self.glossy = True
-
-
-class MockCycles:
-  def __init__(self):
-    self.is_shadow_catcher = False
-    self.use_multiple_importance_sampling = True
-
-
-class MockMaterial:
-  def __init__(self):
-    self.blend_method = "OPAQUE"
-    self.shadow_method = "OPAQUE"
-    self.surface_render_method = "DITHERED"
-
-
 # -- set_material_transparency --
 
 
@@ -52,27 +26,26 @@ def test_set_material_transparency_sets_correct_attrs(major, minor):
   compat = get_compat(major, minor)
   if major == 2 and minor <= 79:
     # 2.79: no-op
-    mat = MockMaterial()
+    mat = MockObj(blend_method="OPAQUE", shadow_method="OPAQUE", surface_render_method="DITHERED")
     compat.set_material_transparency(mat, "BLEND", "CLIP")
     assert mat.blend_method == "OPAQUE"
     assert mat.shadow_method == "OPAQUE"
   elif major >= 5:
-    mat = MockMaterial()
+    mat = MockObj(blend_method="OPAQUE", shadow_method="OPAQUE", surface_render_method="DITHERED")
     compat.set_material_transparency(mat, "BLEND", "CLIP")
     assert mat.surface_render_method == "BLENDED"
   elif major == 4 and minor >= 2:
     # 4.2 with shadow_method present: sets blend_method + shadow_method
-    mat = MockMaterial()
+    mat = MockObj(blend_method="OPAQUE", shadow_method="OPAQUE", surface_render_method="DITHERED")
     compat.set_material_transparency(mat, "BLEND", "CLIP")
     assert mat.blend_method == "BLEND"
     assert mat.shadow_method == "CLIP"
     # 4.2 without shadow_method: falls through to surface_render_method
-    mat2 = MockMaterial()
-    delattr(mat2, "shadow_method")
+    mat2 = MockObj(blend_method="OPAQUE", surface_render_method="DITHERED")
     compat.set_material_transparency(mat2, "BLEND", "HASHED")
     assert mat2.surface_render_method == "DITHERED"
   else:
-    mat = MockMaterial()
+    mat = MockObj(blend_method="OPAQUE", shadow_method="OPAQUE", surface_render_method="DITHERED")
     compat.set_material_transparency(mat, "BLEND", "CLIP")
     assert mat.blend_method == "BLEND"
     assert mat.shadow_method == "CLIP"
@@ -116,15 +89,10 @@ def test_set_shadow_catcher(major, minor):
   compat = get_compat(major, minor)
   if major == 2 and minor <= 79:
     # 2.79: uses obj.cycles.is_shadow_catcher
-    cycles = MockCycles()
+    cycles = MockObj(is_shadow_catcher=False, use_multiple_importance_sampling=True)
     obj = MockObj(cycles=cycles)
     compat.set_shadow_catcher(obj, True)
     assert obj.cycles.is_shadow_catcher is True
-  elif major == 2 and minor < 93:
-    # 2.80-2.92: hasattr fallback chain
-    obj = MockObj(is_shadow_catcher=False)
-    compat.set_shadow_catcher(obj, True)
-    assert obj.is_shadow_catcher is True
   else:
     obj = MockObj(is_shadow_catcher=False)
     compat.set_shadow_catcher(obj, True)
@@ -143,8 +111,7 @@ def test_set_glossy_visibility(major, minor):
     assert obj.visible_glossy is True
   elif major == 2 and minor >= 80:
     # 2.80-2.93: uses cycles_visibility.glossy
-    cycles_vis = MockCyclesVisibility()
-    obj = MockObj(cycles_visibility=cycles_vis)
+    obj = MockObj(cycles_visibility=MockObj(glossy=True))
     compat.set_glossy_visibility(obj, True)
     assert obj.cycles_visibility.glossy is True
   else:
@@ -226,9 +193,8 @@ def test_set_eevee_settings(major, minor):
 @pytest.mark.parametrize("major,minor", COMPAT_VERSIONS)
 def test_set_sun_shadow_properties(major, minor):
   compat = get_compat(major, minor)
-  cycles = MockCycles()
-  data = MockData(
-    shadow_soft_size=0, cycles=cycles,
+  data = MockObj(
+    shadow_soft_size=0, cycles=MockObj(use_multiple_importance_sampling=True),
     shadow_buffer_bias=0, shadow_cascade_count=0,
     use_contact_shadow=False, contact_shadow_distance=0,
   )
