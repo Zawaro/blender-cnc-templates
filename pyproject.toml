@@ -3,6 +3,7 @@ name = "blender-cnc-templates"
 version = "1.0.0"
 
 [dependency-groups]
+lint = ["ruff"]
 test = ["pytest", "pytest-blender"]
 
 [tool.pytest.ini_options]
@@ -12,3 +13,8 @@ addopts = "-p no:pytest-blender"
 [tool.ruff]
 indent-width = 2
 line-length = 200
+
+[tool.ruff.lint.per-file-ignores]
+"*/main.py" = ["E402"]
+"*/generate_scripts.py" = ["E402"]
+"*/scene_builder.py" = ["E402"]

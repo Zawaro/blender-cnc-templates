@@ -1,6 +1,5 @@
 import os
 import sys
-from pathlib import Path
 
 current_path = os.path.dirname(os.path.realpath(__file__))
 parent_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

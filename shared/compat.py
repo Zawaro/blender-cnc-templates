@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Optional, Tuple
+from typing import Optional, Tuple
 
 
 class BaseCompat(ABC):

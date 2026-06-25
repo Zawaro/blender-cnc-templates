@@ -147,10 +147,12 @@ def RW_World(world_texture_path, world_texture_name, suffix):
   bpy.context.scene.world.horizon_color = (0.0998987, 0.0684781, 0.0318961)
   bpy.context.scene.world.use_nodes = True
   output_node01 = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
-  if hasattr(output_node01, 'target'): output_node01.target = 'EEVEE'
+  if hasattr(output_node01, 'target'):
+    output_node01.target = 'EEVEE'
   world.node_tree.links.remove(output_node01.inputs[0].links[0])
   output_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeOutputWorld")
-  if hasattr(output_node02, 'target'): output_node02.target = 'CYCLES'
+  if hasattr(output_node02, 'target'):
+    output_node02.target = 'CYCLES'
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
@@ -207,10 +209,12 @@ def TS_World(world_texture_path, world_texture_name, suffix):
   bpy.context.scene.world.horizon_color = (0.191202, 0.191202, 0.191202)
   bpy.context.scene.world.use_nodes = True
   output_node01 = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
-  if hasattr(output_node01, 'target'): output_node01.target = 'EEVEE'
+  if hasattr(output_node01, 'target'):
+    output_node01.target = 'EEVEE'
   world.node_tree.links.remove(output_node01.inputs[0].links[0])
   output_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeOutputWorld")
-  if hasattr(output_node02, 'target'): output_node02.target = 'CYCLES'
+  if hasattr(output_node02, 'target'):
+    output_node02.target = 'CYCLES'
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")
@@ -267,10 +271,12 @@ def D2K_World(world_texture_path, world_texture_name, suffix):
   bpy.context.scene.world.horizon_color = BASE_COLOR
   bpy.context.scene.world.use_nodes = True
   output_node01 = bpy.data.worlds["World."+suffix].node_tree.nodes["World Output"]
-  if hasattr(output_node01, 'target'): output_node01.target = 'EEVEE'
+  if hasattr(output_node01, 'target'):
+    output_node01.target = 'EEVEE'
   world.node_tree.links.remove(output_node01.inputs[0].links[0])
   output_node02 = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeOutputWorld")
-  if hasattr(output_node02, 'target'): output_node02.target = 'CYCLES'
+  if hasattr(output_node02, 'target'):
+    output_node02.target = 'CYCLES'
   tex_coord_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeTexCoord")
   lightpath_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeLightPath")
   mapping_node = bpy.context.scene.world.node_tree.nodes.new("ShaderNodeMapping")

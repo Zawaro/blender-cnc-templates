@@ -115,11 +115,17 @@ elif scenename == "C&C Remastered - Effects": suffix = "RM.FX"
 '''
 
 def get_render_properties(render_type):
-  if render_type == "Reset":     return [1, 1, 1, 1, 1, 0, 1,  1]
-  elif render_type == "Buildup": return [1, 0, 1, 1, 1, 1, 1,  1]
-  elif render_type == "Object":  return [1, 1, 1, 1, 1, 1, 0,  1]
-  elif render_type == "Preview": return [0, 1, 0, 1, 1, 1, 1,  1]
-  elif render_type == "Shadow":  return [0, 1, 0, 1, 1, 1, 1,  0]
-  else:                          return [1, 1, 1, 1, 1, 0, 1,  1]
+  if render_type == "Reset":
+    return [1, 1, 1, 1, 1, 0, 1, 1]
+  elif render_type == "Buildup":
+    return [1, 0, 1, 1, 1, 1, 1, 1]
+  elif render_type == "Object":
+    return [1, 1, 1, 1, 1, 1, 0, 1]
+  elif render_type == "Preview":
+    return [0, 1, 0, 1, 1, 1, 1, 1]
+  elif render_type == "Shadow":
+    return [0, 1, 0, 1, 1, 1, 1, 0]
+  else:
+    return [1, 1, 1, 1, 1, 0, 1, 1]
 
 generate_scripts()
