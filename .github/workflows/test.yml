@@ -15,6 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v4
+      - name: Install dependencies
+        run: uv sync --group test
       - name: Run non-bpy tests
         run: uv run pytest tests/ -v --ignore=tests/test_plane_materials_bpy.py --ignore=tests/test_build_utils_bpy.py --ignore=tests/test_scenes_bpy.py
 
@@ -54,6 +56,6 @@ jobs:
 
       - name: Run bpy tests
         run: |
-          pytest tests/test_plane_materials_bpy.py tests/test_build_utils_bpy.py tests/test_scenes_bpy.py -v
+          pytest -p pytest-blender tests/test_plane_materials_bpy.py tests/test_build_utils_bpy.py tests/test_scenes_bpy.py -v
         env:
           BLENDER_EXECUTABLE: ${{ steps.blender.outputs.path }}
