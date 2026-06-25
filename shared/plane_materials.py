@@ -159,30 +159,31 @@ def Plane_Shadow(suffix):
   mat.node_tree.links.new(mix01.outputs[0], mix02.inputs[2])
   mat.node_tree.links.new(mix02.outputs[0], output01.inputs[0])
 
-  # Eevee output (2.80+ only)
-  try:
-    output02 = mat.node_tree.nodes.new("ShaderNodeOutputMaterial")
-    if hasattr(output02, "target"):
-      output02.target = "EEVEE"
-    mix03 = mat.node_tree.nodes.new("ShaderNodeMixShader")
-    principled = mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
-    principled.inputs[0].default_value = (0.371235, 0.371238, 0.371238, 0)
+  # Eevee output (2.80+ only) — ShaderNodeShaderToRGB doesn't exist before 2.80
+  if bpy.app.version >= (2, 80, 0):
     try:
-      principled.inputs[2].default_value = 0.0
-    except (TypeError, ValueError):
-      principled.inputs[2].default_value = (0, 0, 0)
-    transparent02 = mat.node_tree.nodes.new("ShaderNodeBsdfTransparent")
-    shader_to_rgb = mat.node_tree.nodes.new("ShaderNodeShaderToRGB")
-    diffuse03 = mat.node_tree.nodes.new("ShaderNodeBsdfDiffuse")
-    diffuse03.inputs[0].default_value = (0, 0, 0, 1)
-    diffuse03.inputs[1].default_value = 0
+      output02 = mat.node_tree.nodes.new("ShaderNodeOutputMaterial")
+      if hasattr(output02, "target"):
+        output02.target = "EEVEE"
+      mix03 = mat.node_tree.nodes.new("ShaderNodeMixShader")
+      principled = mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
+      principled.inputs[0].default_value = (0.371235, 0.371238, 0.371238, 0)
+      try:
+        principled.inputs[2].default_value = 0.0
+      except (TypeError, ValueError):
+        principled.inputs[2].default_value = (0, 0, 0)
+      transparent02 = mat.node_tree.nodes.new("ShaderNodeBsdfTransparent")
+      shader_to_rgb = mat.node_tree.nodes.new("ShaderNodeShaderToRGB")
+      diffuse03 = mat.node_tree.nodes.new("ShaderNodeBsdfDiffuse")
+      diffuse03.inputs[0].default_value = (0, 0, 0, 1)
+      diffuse03.inputs[1].default_value = 0
 
-    mat.node_tree.links.new(principled.outputs[0], shader_to_rgb.inputs[0])
-    mat.node_tree.links.new(shader_to_rgb.outputs[0], mix03.inputs[0])
-    mat.node_tree.links.new(diffuse03.outputs[0], mix03.inputs[1])
-    mat.node_tree.links.new(transparent02.outputs[0], mix03.inputs[2])
-    mat.node_tree.links.new(mix03.outputs[0], output02.inputs[0])
-  except (RuntimeError, KeyError):
-    pass
+      mat.node_tree.links.new(principled.outputs[0], shader_to_rgb.inputs[0])
+      mat.node_tree.links.new(shader_to_rgb.outputs[0], mix03.inputs[0])
+      mat.node_tree.links.new(diffuse03.outputs[0], mix03.inputs[1])
+      mat.node_tree.links.new(transparent02.outputs[0], mix03.inputs[2])
+      mat.node_tree.links.new(mix03.outputs[0], output02.inputs[0])
+    except (RuntimeError, KeyError):
+      pass
 
   return mat

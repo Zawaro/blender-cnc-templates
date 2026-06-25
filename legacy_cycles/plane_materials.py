@@ -127,7 +127,6 @@ def Plane_Shadow(suffix):
   shadow_mat.use_nodes = True
   _remove_default_shader(shadow_mat)
   output_node01 = shadow_mat.node_tree.nodes["Material Output"]
-  output_node01.target = 'CYCLES'
   lightpath_node = shadow_mat.node_tree.nodes.new('ShaderNodeLightPath')
   diffuse_node01 = shadow_mat.node_tree.nodes.new('ShaderNodeBsdfDiffuse')
   diffuse_node01.inputs[0].default_value = (0.090655, 0.090655, 0.090655, 1)
@@ -144,51 +143,5 @@ def Plane_Shadow(suffix):
   shadow_mat.node_tree.links.new(diffuse_node02.outputs[0], mixshader_node01.inputs[2])
   shadow_mat.node_tree.links.new(mixshader_node01.outputs[0], mixshader_node02.inputs[2])
   shadow_mat.node_tree.links.new(mixshader_node02.outputs[0], output_node01.inputs[0])
-  output_node02 = shadow_mat.node_tree.nodes.new('ShaderNodeOutputMaterial')
-  output_node02.target = 'EEVEE'
-  tex_coord_node = shadow_mat.node_tree.nodes.new('ShaderNodeTexCoord')
-  value_node = shadow_mat.node_tree.nodes.new('ShaderNodeValue')
-  value_node.outputs[0].default_value = 0.01
-  multiply_node = shadow_mat.node_tree.nodes.new('ShaderNodeMixRGB')
-  multiply_node.blend_type = 'MULTIPLY'
-  multiply_node.inputs[0].default_value = 1
-  gradient_node = shadow_mat.node_tree.nodes.new('ShaderNodeTexGradient')
-  gradient_node.gradient_type = 'QUADRATIC_SPHERE'
-  gamma01_node = shadow_mat.node_tree.nodes.new('ShaderNodeGamma')
-  gamma01_node.inputs[1].default_value = 0.001
-  diffuse_node03 = shadow_mat.node_tree.nodes.new('ShaderNodeBsdfDiffuse')
-  diffuse_node03.inputs[0].default_value = (1, 1, 1, 1)
-  diffuse_node03.inputs[1].default_value = 0
-  to_rgb_node = shadow_mat.node_tree.nodes.new('ShaderNodeShaderToRGB')
-  rgb_to_bw_node = shadow_mat.node_tree.nodes.new('ShaderNodeRGBToBW')
-  gamma02_node = shadow_mat.node_tree.nodes.new('ShaderNodeGamma')
-  gamma02_node.inputs[1].default_value = 3.9
-  colorramp_node = shadow_mat.node_tree.nodes.new('ShaderNodeValToRGB')
-  colorramp_node.color_ramp.elements[1].position = 0.132
-  mix_node = shadow_mat.node_tree.nodes.new('ShaderNodeMixRGB')
-  mix_node.inputs[1].default_value = (0.431555, 0.431555, 0.431555, 1)
-  greater_node = shadow_mat.node_tree.nodes.new('ShaderNodeMath')
-  greater_node.operation = 'GREATER_THAN'
-  greater_node.inputs[1].default_value = 0.1
-  diffuse_node04 = shadow_mat.node_tree.nodes.new('ShaderNodeBsdfDiffuse')
-  diffuse_node04.inputs[0].default_value = (0, 0, 0, 1)
-  diffuse_node04.inputs[1].default_value = 0
-  transparent_node02 = shadow_mat.node_tree.nodes.new('ShaderNodeBsdfTransparent')
-  mixshader_node03 = shadow_mat.node_tree.nodes.new('ShaderNodeMixShader')
-  shadow_mat.node_tree.links.new(tex_coord_node.outputs[3], multiply_node.inputs[1])
-  shadow_mat.node_tree.links.new(value_node.outputs[0], multiply_node.inputs[2])
-  shadow_mat.node_tree.links.new(multiply_node.outputs[0], gradient_node.inputs[0])
-  shadow_mat.node_tree.links.new(gradient_node.outputs[0], gamma01_node.inputs[0])
-  shadow_mat.node_tree.links.new(gamma01_node.outputs[0], mix_node.inputs[0])
-  shadow_mat.node_tree.links.new(diffuse_node03.outputs[0], to_rgb_node.inputs[0])
-  shadow_mat.node_tree.links.new(to_rgb_node.outputs[0], rgb_to_bw_node.inputs[0])
-  shadow_mat.node_tree.links.new(rgb_to_bw_node.outputs[0], gamma02_node.inputs[0])
-  shadow_mat.node_tree.links.new(gamma02_node.outputs[0], colorramp_node.inputs[0])
-  shadow_mat.node_tree.links.new(colorramp_node.outputs[0], mix_node.inputs[2])
-  shadow_mat.node_tree.links.new(mix_node.outputs[0], greater_node.inputs[0])
-  shadow_mat.node_tree.links.new(greater_node.outputs[0], mixshader_node03.inputs[0])
-  shadow_mat.node_tree.links.new(diffuse_node04.outputs[0], mixshader_node03.inputs[1])
-  shadow_mat.node_tree.links.new(transparent_node02.outputs[0], mixshader_node03.inputs[2])
-  shadow_mat.node_tree.links.new(mixshader_node03.outputs[0], output_node02.inputs[0])
 
   return shadow_mat
