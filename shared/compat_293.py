@@ -181,7 +181,6 @@ class Compat293(BaseCompat):
     return True
 
   def create_shadow_view_layer(self, scene, full_name):
-    import bpy
     shadow_vl = scene.view_layers.new("ShadowLayer")
     root = shadow_vl.layer_collection
     template_key = full_name + " Template"

@@ -10,7 +10,7 @@ from shared.compat import get_compat
 from shared.build_utils import load_scripts, setup_text_editor, save_blend
 from shared.constants import TEMPLATE_VERSION
 from constants import TEMPLATE_PREFIX, TEMPLATE_VARIANT
-from scene_builder import build_scene, GAME_CONFIGS, _get_game_key
+from scene_builder import build_scene, _get_game_key
 
 compat = get_compat(2, 79)
 

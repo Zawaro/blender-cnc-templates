@@ -1,5 +1,4 @@
 import bpy
-from typing import Dict
 
 from . import constants
 from .node_arrange import arrange_nodes

@@ -8,7 +8,7 @@ sys.path.insert(0, CURRENT_PATH)
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from plane_materials import (
-  _make_blue, _make_grey, _make_grass, _make_ambient, _make_holdout, _make_shadow,
+  _make_blue, _make_grey, _make_ambient, _make_holdout, _make_shadow,
 )
 from world_materials import WORLD_FACTORIES
 
@@ -235,10 +235,10 @@ def build_scene(full_name, suffix, game_key, compat):
 
   rl = scene.render.layers["RenderLayer"]
   game_layer = GAME_LAMP_LAYER[game_key]
-  exclude_layers = [l for l in ALL_LAMP_LAYERS if l != game_layer]
+  exclude_layers = [layer for layer in ALL_LAMP_LAYERS if layer != game_layer]
   layers_exclude = [False] * 20
-  for l in exclude_layers:
-    layers_exclude[l] = True
+  for layer in exclude_layers:
+    layers_exclude[layer] = True
   rl.layers_exclude = layers_exclude
 
   world_factory = WORLD_FACTORIES.get(game_key, lambda s: WORLD_FACTORIES["RA2"](s))

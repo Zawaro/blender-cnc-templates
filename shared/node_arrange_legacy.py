@@ -154,7 +154,6 @@ def nodes_arrange(nodelist, level):
   values.x_last = xpos
 
   # node y positions
-  x = 0
   y = 0
 
   for node in nodelist:
