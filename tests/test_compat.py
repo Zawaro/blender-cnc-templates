@@ -20,6 +20,8 @@ EXPECTED_METHODS = [
   "get_pixel_filter_type", "get_view_transform_default", "has_viewport_settings",
   "get_sky_density_property", "get_sky_type_value",
   "compositor_switch_toggle", "alpha_toggle", "get_engine_string", "has_collections",
+  "create_shadow_view_layer", "has_cryptomatte", "has_shader_to_rgb",
+  "get_shadow_pass_index", "get_indexob_output_index",
 ]
 
 EXPECTED_PROPERTIES = [
