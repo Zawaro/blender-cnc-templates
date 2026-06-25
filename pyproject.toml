@@ -1,0 +1,14 @@
+[project]
+name = "blender-cnc-templates"
+version = "1.0.0"
+
+[dependency-groups]
+test = ["pytest", "pytest-blender"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:pytest-blender"
+
+[tool.ruff]
+indent-width = 2
+line-length = 200

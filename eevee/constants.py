@@ -1,0 +1,2 @@
+TEMPLATE_VARIANT = "eevee"
+TEMPLATE_PREFIX = "CnC_Eevee"

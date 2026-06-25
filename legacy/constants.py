@@ -1,0 +1,2 @@
+TEMPLATE_VARIANT = "legacy"
+TEMPLATE_PREFIX = "CnC_Legacy"

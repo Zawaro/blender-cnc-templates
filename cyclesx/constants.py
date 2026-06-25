@@ -1,0 +1,2 @@
+TEMPLATE_VARIANT = "cyclesx"
+TEMPLATE_PREFIX = "CnC_CyclesX"

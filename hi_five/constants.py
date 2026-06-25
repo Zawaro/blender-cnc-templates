@@ -1,0 +1,2 @@
+TEMPLATE_VARIANT = "hi_five"
+TEMPLATE_PREFIX = "CnC_HiFive"
