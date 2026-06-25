@@ -37,12 +37,18 @@ shared/
   node_arrange.py        # Auto-layout for Blender nodes
   node_arrange_legacy.py
 tests/
-  test_compat.py         # Compat layer interface compliance
-  test_scene_names.py    # Scene name mapping completeness
-  test_script_gen.py     # Script generation (no bpy needed)
-  test_version.py        # Version single source of truth + env tests
-  test_env.py            # .env format and build script tests
+  conftest.py             # Fixtures: clean_scene, compat (parses pytest-blender version)
+  test_compat.py          # Compat layer interface compliance
+  test_compat_runtime.py  # Compat methods on mock bpy objects (no Blender needed)
+  test_scene_names.py     # Scene name mapping completeness
+  test_script_gen.py      # Script generation (no bpy needed)
+  test_version.py         # Version single source of truth + env tests
+  test_env.py             # .env format and build script tests
+  test_plane_materials_bpy.py  # Material factories (needs Blender)
+  test_build_utils_bpy.py     # load_scripts (needs Blender)
+  test_scenes_bpy.py          # BaseScene integration (needs Blender)
 release/                 # Output .blend/.zip/.7z files (gitignored)
+test.sh                  # Local multi-version test runner
 ```
 
 ## Build commands
@@ -173,3 +179,4 @@ bpy tests require `pytest` installed in Blender's own Python:
 - `compat_280.py` overrides `has_cryptomatte() → False` and `has_shader_to_rgb() → False` because Eevee 2.80–2.92 lacks these features. 2.93 has its own `compat_293.py` that returns True for both.
 - `legacy/` does not use the shared scene classes at all — it has its own `scene_builder.py` with hardcoded camera/light configs per game. Do not add shared scene logic there.
 - All shared modules must be Python 3.5 compatible for legacy_cycles (no f-strings, no variable annotations, no dataclass).
+- `test.sh` clears `.pytest_cache` between Blender version runs — pytest-blender caches `blender_version` and stale cache poisons the next run.
