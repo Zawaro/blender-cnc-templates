@@ -73,7 +73,7 @@ jobs:
           - variant: legacy_eevee
             blender: "2.80"
           - variant: eevee
-            blender: "2.93"
+            blender: "2.93.18"
           - variant: cyclesx
             blender: "3.6"
           - variant: eevee_next
@@ -103,6 +103,10 @@ jobs:
 
       - name: Generate scripts
         run: uv run python ${{ matrix.variant }}/generate_scripts.py
+
+      - name: Install system deps (2.79)
+        if: matrix.blender == '2.79'
+        run: sudo apt-get update && sudo apt-get install -y libglu1-mesa
 
       - name: Build ${{ matrix.variant }}
         run: ${{ steps.blender.outputs.path }} -b --python ${{ matrix.variant }}/main.py
