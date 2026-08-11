@@ -1,0 +1,29 @@
+schema: spec-driven
+
+context: |
+  Tech stack: Python, Blender 2.79-5.1 headless scripts
+  Domain: C&C (RA2/TS/RW/RA1/RM/D2K) scene templates, 7 variants
+  Build: uv, build.sh; version single source = shared/constants.py (TEMPLATE_VERSION)
+  Conventions: conventional commits, 2-space indent, 200-char lines (ruff)
+  Testing: pytest non-bpy tier + pytest-blender bpy tier
+  Legacy variants (2.79) must be Python 3.5 compatible (no f-strings)
+
+rules:
+  proposal:
+    - Keep under 500 words
+    - Always include a "Non-goals" section
+  specs:
+    - Write in user-facing behavior language, not implementation
+    - Reference existing patterns before inventing new ones
+  tasks:
+    - Break into chunks of max 2 hours
+    - Reference variant-specific files where relevant
+
+operations:
+  apply:
+    guidance:
+      - Run `uv run ruff check .` before focused tests
+      - Run non-bpy tests before any bpy integration run
+  archive:
+    guidance:
+      - Keep the completion summary concise
