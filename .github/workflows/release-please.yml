@@ -73,20 +73,16 @@ jobs:
         if: matrix.blender == '2.79'
         run: sudo apt-get update && sudo apt-get install -y libglu1-mesa
 
-      - name: Install archive tools
-        run: sudo apt-get update && sudo apt-get install -y p7zip-full
-
       - name: Build ${{ matrix.variant }}
         run: |
           export BUILD_NUMBER=$(git rev-list --count HEAD)
           ${{ steps.blender.outputs.path }} -b --python ${{ matrix.variant }}/main.py
 
-      - name: Archive .blend to .zip and .7z
+      - name: Archive .blend to .zip
         run: |
           for f in release/${{ matrix.variant }}/*.blend; do
             base=${f%.*}
             zip -j "${base}.zip" "$f"
-            7z a -t7z -mx=9 "${base}.7z" "$f"
           done
 
       - name: Upload release assets
@@ -96,7 +92,6 @@ jobs:
           files: |
             release/${{ matrix.variant }}/*.blend
             release/${{ matrix.variant }}/*.zip
-            release/${{ matrix.variant }}/*.7z
 
   notes:
     if: needs.release-please.outputs.release_created == 'true'
@@ -137,13 +132,13 @@ jobs:
             IFS='|' read -r variant blender prefix <<< "$entry"
             BLEND="${prefix}_${VERSION}_build${BUILD_NUM}_${DATE}.blend"
             BASE="https://github.com/${REPO}/releases/download/${TAG}"
-            TABLE+="\n| $blender | \`$variant\` | [.blend](${BASE}/${BLEND}) · [.zip](${BASE}/${BLEND%.blend}.zip) · [.7z](${BASE}/${BLEND%.blend}.7z) |"
+            TABLE+="\n| $blender | \`$variant\` | [.blend](${BASE}/${BLEND}) · [.zip](${BASE}/${BLEND%.blend}.zip) |"
           done
 
           TABLE+="\n\n### Changes\n"
           TABLE+="\n${BODY}"
           TABLE+="\n\n### Installation"
-          TABLE+="\n\n1. Download the \`.blend\` (or \`.zip\`/\`.7z\`) for your Blender version"
+          TABLE+="\n\n1. Download the \`.blend\` (or \`.zip\`) for your Blender version"
           TABLE+="\n2. If you downloaded an archive, extract it"
           TABLE+="\n3. In Blender: **File > Open** and select the \`.blend\` file"
 
