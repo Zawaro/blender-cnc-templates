@@ -1,0 +1,160 @@
+name: Release Please
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  build:
+    if: needs.release-please.outputs.release_created == 'true'
+    needs: release-please
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: legacy
+            blender: "2.79"
+          - variant: legacy_cycles
+            blender: "2.79"
+          - variant: legacy_eevee
+            blender: "2.80"
+          - variant: eevee
+            blender: "2.93.18"
+          - variant: cyclesx
+            blender: "3.6"
+          - variant: eevee_next
+            blender: "4.3"
+          - variant: hi_five
+            blender: "5.1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: astral-sh/setup-uv@v4
+
+      - name: Cache Blender
+        uses: actions/cache@v4
+        id: cache-blender
+        with:
+          path: blender-*
+          key: build-blender-${{ matrix.blender }}
+
+      - name: Download Blender
+        id: blender
+        run: |
+          pip install blender-downloader 2>/dev/null
+          echo "path=$(blender-downloader ${{ matrix.blender }} --extract --remove-compressed --print-blender-executable --quiet)" >> $GITHUB_OUTPUT
+
+      - name: Generate scripts
+        run: uv run python ${{ matrix.variant }}/generate_scripts.py
+
+      - name: Install system deps (2.79)
+        if: matrix.blender == '2.79'
+        run: sudo apt-get update && sudo apt-get install -y libglu1-mesa
+
+      - name: Install archive tools
+        run: sudo apt-get update && sudo apt-get install -y p7zip-full
+
+      - name: Build ${{ matrix.variant }}
+        run: |
+          export BUILD_NUMBER=$(git rev-list --count HEAD)
+          ${{ steps.blender.outputs.path }} -b --python ${{ matrix.variant }}/main.py
+
+      - name: Archive .blend to .zip and .7z
+        run: |
+          for f in release/${{ matrix.variant }}/*.blend; do
+            base=${f%.*}
+            zip -j "${base}.zip" "$f"
+            7z a -t7z -mx=9 "${base}.7z" "$f"
+          done
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
+          files: |
+            release/${{ matrix.variant }}/*.blend
+            release/${{ matrix.variant }}/*.zip
+            release/${{ matrix.variant }}/*.7z
+
+  notes:
+    if: needs.release-please.outputs.release_created == 'true'
+    needs: [release-please, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Format release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          VERSION="${TAG#v}"
+          BUILD_NUM=$(git rev-list --count HEAD)
+          DATE=$(date -u +%Y%m%d)
+
+          # Extract changelog body (skip the header line and leading blank line)
+          BODY=$(gh release view "$TAG" --json body -q .body | sed '1,/^$/d')
+
+          # Build download table
+          TABLE="**${TAG} Build ${BUILD_NUM}**"
+          TABLE+="\n\n| Blender | Variant | Files |"
+          TABLE+="\n|---------|---------|-------|"
+          VARIANTS=(
+            "legacy|2.79|CnC_Legacy"
+            "legacy_cycles|2.79|CnC_LegacyCycles"
+            "legacy_eevee|2.80-2.92|CnC_LegacyEevee"
+            "eevee|2.93|CnC_Eevee"
+            "cyclesx|3.0-3.6|CnC_CyclesX"
+            "eevee_next|4.2-4.3|CnC_EeveeNext"
+            "hi_five|5.0-5.1|CnC_HiFive"
+          )
+          for entry in "${VARIANTS[@]}"; do
+            IFS='|' read -r variant blender prefix <<< "$entry"
+            BLEND="${prefix}_${VERSION}_build${BUILD_NUM}_${DATE}.blend"
+            BASE="https://github.com/${REPO}/releases/download/${TAG}"
+            TABLE+="\n| $blender | \`$variant\` | [.blend](${BASE}/${BLEND}) · [.zip](${BASE}/${BLEND%.blend}.zip) · [.7z](${BASE}/${BLEND%.blend}.7z) |"
+          done
+
+          TABLE+="\n\n### Changes\n"
+          TABLE+="\n${BODY}"
+          TABLE+="\n\n### Installation"
+          TABLE+="\n\n1. Download the \`.blend\` (or \`.zip\`/\`.7z\`) for your Blender version"
+          TABLE+="\n2. If you downloaded an archive, extract it"
+          TABLE+="\n3. In Blender: **File > Open** and select the \`.blend\` file"
+
+          printf "%b" "$TABLE" > /tmp/release_body.md
+          gh release edit "$TAG" --notes-file /tmp/release_body.md
+
+      - name: Tag with build number
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BUILD_NUM=$(git rev-list --count HEAD)
+          TAG="${{ needs.release-please.outputs.tag_name }}_build${BUILD_NUM}"
+          git tag -a "$TAG" -m "Build $BUILD_NUM"
+          git push origin "$TAG"

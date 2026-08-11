@@ -77,7 +77,8 @@ uv run pytest tests/ -v                        # Run tests (no Blender needed)
 
 ## Version management
 
-- `shared/constants.py` — single source of truth for `TEMPLATE_VERSION = "1.0.0"`
+- `shared/constants.py` — single source of truth for `TEMPLATE_VERSION`. `pyproject.toml` derives its version from it (dynamic via setuptools attr). **Never bump the version manually** — release-please owns it.
+- Release flow: on version-worthy commits (`feat:`/`fix:`) to `main`, release-please opens a `chore: release` PR (`.github/workflows/release-please.yml`). Merging it bumps `TEMPLATE_VERSION`, regenerates `CHANGELOG.md`, builds all 7 variants, publishes `.blend`/`.zip`/`.7z` release assets, and tags `{tag}_build{N}`.
 - Each variant's `constants.py` has `TEMPLATE_VARIANT` (matches folder name) and `TEMPLATE_PREFIX`
 - `build.sh` computes `BUILD_NUMBER` from git commit count and exports it
 - `shared/build_utils.py` reads `BUILD_NUMBER` from env: `{prefix}_{version}_build{number}_{date}.blend`
@@ -136,6 +137,8 @@ uv run ruff check .
 
 Config in `pyproject.toml`: 2-space indent, 200-char line length.
 
+Commits and PR titles must follow [Conventional Commits](https://www.conventionalcommits.org/) — enforced by commitlint on every PR (`.github/workflows/commitlint.yml`, `commitlint.config.cjs`). This matters because release-please parses commit types to decide version bumps and CHANGELOG grouping.
+
 ## Testing
 
 ```sh
@@ -160,12 +163,38 @@ bpy tests require `pytest` installed in Blender's own Python:
 ## Key conventions
 
 - **2-space indentation** throughout (enforced by ruff).
+- **Docstrings**: keep short docstrings on functions/classes, matching the existing style in `shared/*.py` (e.g. `build_utils.py`). No no-docstring rule.
 - Scripts inside version folders run in Blender's Python interpreter, not standalone. `bpy` is the core API. Do not write Blender add-ons — these are headless automation scripts.
 - Each game scene (RA2, TS, RW, RA1, RM, D2K) has 3 variants: base, INF (infantry, lower res), FX (effects). The `_FX` classes typically inherit from the base and override a few attributes.
 - `shared/node_arrange.py` must be called after creating node trees to auto-layout nodes.
 - `scripts/` directories and `release/` are gitignored. Never commit generated artifacts.
 - `TEMPLATE_VERSION` lives only in `shared/constants.py`. Never put it in variant folders.
 - Output files: `{prefix}_{version}_build{number}_{date}.blend` in `release/{variant}/`
+
+## Git conventions
+
+- **Commits**: Conventional Commits format — `type(scope): description (#issue)`. Commit messages are enforced by commitlint (`commitlint.config.cjs`); valid types are `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert` (no `bug` — use `fix` so release-please can version it). Always suffix the GH issue number in parentheses, e.g. `fix(compat): routing for 2.79 (#14)`. Scope is optional but preferred (the file or system affected).
+- **Branch names**: `type/issue-number-kebab-description`, e.g. `feat/14-port-release-please`. Always include the issue number after the slash.
+- **GH issue titles**: same conventional prefix as commits — `feat: port release-please setup from blender-cnc-toolkit`.
+- **PR titles**: conventional prefix + issue number in parentheses — `feat: port release-please setup (#14)`. The branch already has the number, but the PR title must include it too.
+
+## GitHub CLI
+
+`gh` is available for issue and PR workflows. Common commands:
+
+- `gh issue create` — file a new issue
+- `gh issue list` — list open issues
+- `gh pr view` — view a pull request
+
+## Issues
+
+Bugs and feature requests are tracked via GitHub Issues. Use the existing labels:
+
+- `bug` — something isn't working
+- `enhancement` — new feature or request
+- `documentation` — docs improvements
+- `good first issue` — good for newcomers
+- `help wanted` — extra attention needed
 
 ## Gotchas
 
