@@ -7,7 +7,7 @@ name = "blender-cnc-templates"
 dynamic = ["version"]
 
 [dependency-groups]
-lint = ["ruff"]
+lint = ["ruff==0.15.20"]
 test = ["pytest", "pytest-blender"]
 
 [tool.setuptools]
