@@ -1,10 +1,20 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "blender-cnc-templates"
-version = "1.0.0"
+dynamic = ["version"]
 
 [dependency-groups]
 lint = ["ruff"]
 test = ["pytest", "pytest-blender"]
+
+[tool.setuptools]
+packages = ["shared"]
+
+[tool.setuptools.dynamic]
+version = { attr = "shared.constants.TEMPLATE_VERSION" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

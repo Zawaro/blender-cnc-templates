@@ -6,6 +6,7 @@ __pycache__/
 .blend
 .venv
 .build_venv
+*.egg-info/
 
 # Generated Blender .txt scripts
 eevee_next/scripts
