@@ -1,3 +1,4 @@
+import bpy
 import os
 import sys
 from pathlib import Path
@@ -38,6 +39,12 @@ SCENES = [
 for full_name, suffix in SCENES:
   game_key = _get_game_key(suffix)
   build_scene(full_name, suffix, game_key, compat)
+
+scene_names = {full_name for full_name, _ in SCENES}
+bpy.context.screen.scene = bpy.data.scenes[SCENES[0][0]]
+for sc in list(bpy.data.scenes):
+  if sc.name not in scene_names:
+    bpy.data.scenes.remove(sc)
 
 load_scripts(os.path.join(CURRENT_PATH, "scripts"))
 setup_text_editor()
