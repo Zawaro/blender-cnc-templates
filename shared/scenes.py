@@ -361,6 +361,9 @@ class BaseScene:
     nodes = tree.nodes
     links = tree.links
 
+    switch_pass, switch_comp = self.compat.get_switch_input_indices()
+    ao_bg, ao_fg = self.compat.get_alpha_over_image_indices()
+
     rl_node = self.compat.get_render_layers_node(scene)
     if rl_node is None:
       rl_node = nodes.new("CompositorNodeRLayers")
@@ -475,16 +478,16 @@ class BaseScene:
     mix_out = self.compat.get_mix_output()
 
     links.new(switches["Preview.Eevee"].outputs[0], out_node.inputs[0])
-    links.new(switches["Preview.Cycles"].outputs[0], switches["Preview.Eevee"].inputs[0])
-    links.new(switches["Shadow.Eevee"].outputs[0], switches["Preview.Cycles"].inputs[0])
-    links.new(switches["Shadow.Cycles"].outputs[0], switches["Shadow.Eevee"].inputs[0])
-    links.new(switches["Buildup.Eevee"].outputs[0], switches["Shadow.Cycles"].inputs[0])
-    links.new(switches["Buildup.Cycles"].outputs[0], switches["Buildup.Eevee"].inputs[0])
-    links.new(switches["Object"].outputs[0], switches["Buildup.Cycles"].inputs[0])
+    links.new(switches["Preview.Cycles"].outputs[0], switches["Preview.Eevee"].inputs[switch_pass])
+    links.new(switches["Shadow.Eevee"].outputs[0], switches["Preview.Cycles"].inputs[switch_pass])
+    links.new(switches["Shadow.Cycles"].outputs[0], switches["Shadow.Eevee"].inputs[switch_pass])
+    links.new(switches["Buildup.Eevee"].outputs[0], switches["Shadow.Cycles"].inputs[switch_pass])
+    links.new(switches["Buildup.Cycles"].outputs[0], switches["Buildup.Eevee"].inputs[switch_pass])
+    links.new(switches["Object"].outputs[0], switches["Buildup.Cycles"].inputs[switch_pass])
 
-    links.new(rl_node.outputs[0], switches["Object"].inputs[0])
+    links.new(rl_node.outputs[0], switches["Object"].inputs[switch_pass])
     links.new(rl_node.outputs[0], alpha_convert.inputs[0])
-    links.new(alpha_convert.outputs[0], ao01.inputs[2])
+    links.new(alpha_convert.outputs[0], ao01.inputs[ao_fg])
 
     if self.compat.has_cryptomatte():
       links.new(rl_node.outputs[2], cryptomatte.inputs[0])
@@ -495,14 +498,14 @@ class BaseScene:
       links.new(screen.outputs[mix_out], multiply.inputs[mix_b])
       links.new(alpha_convert.outputs[1], multiply.inputs[mix_a])
       links.new(multiply.outputs[mix_out], colorramp.inputs[0])
-      links.new(colorramp.outputs[0], ao02.inputs[1])
+      links.new(colorramp.outputs[0], ao02.inputs[ao_fg])
     elif self.compat.has_collections():
       links.new(shadow_rl_node.outputs[1], sep_hsva.inputs[0])
       links.new(sep_hsva.outputs[1], invert.inputs[invert_input])
       links.new(invert.outputs[0], multiply.inputs[mix_b])
       links.new(alpha_convert.outputs[1], multiply.inputs[mix_a])
       links.new(multiply.outputs[mix_out], colorramp.inputs[0])
-      links.new(colorramp.outputs[0], ao02.inputs[1])
+      links.new(colorramp.outputs[0], ao02.inputs[ao_fg])
     else:
       links.new(rl_node.outputs[self.compat.get_indexob_output_index()], idmask.inputs[0])
       links.new(idmask.outputs[0], sep_hsva.inputs[0])
@@ -510,20 +513,20 @@ class BaseScene:
       links.new(invert.outputs[0], multiply.inputs[mix_b])
       links.new(alpha_convert.outputs[1], multiply.inputs[mix_a])
       links.new(multiply.outputs[mix_out], colorramp.inputs[0])
-      links.new(colorramp.outputs[0], ao02.inputs[1])
+      links.new(colorramp.outputs[0], ao02.inputs[ao_fg])
 
-    links.new(rgb01.outputs[0], switches["Alpha"].inputs[0])
-    links.new(rgb02.outputs[0], switches["Alpha"].inputs[1])
-    links.new(switches["Alpha"].outputs[0], ao01.inputs[2])
-    links.new(switches["Alpha"].outputs[0], ao02.inputs[2])
+    links.new(rgb01.outputs[0], switches["Alpha"].inputs[switch_pass])
+    links.new(rgb02.outputs[0], switches["Alpha"].inputs[switch_comp])
+    links.new(switches["Alpha"].outputs[0], ao01.inputs[ao_bg])
+    links.new(switches["Alpha"].outputs[0], ao02.inputs[ao_bg])
 
-    links.new(ao01.outputs[0], switches["Object"].inputs[1])
-    links.new(ao01.outputs[0], switches["Buildup.Cycles"].inputs[1])
-    links.new(ao01.outputs[0], switches["Buildup.Eevee"].inputs[1])
-    links.new(ao02.outputs[0], switches["Shadow.Cycles"].inputs[1])
-    links.new(ao02.outputs[0], switches["Shadow.Eevee"].inputs[1])
-    links.new(ao01.outputs[0], switches["Preview.Cycles"].inputs[1])
-    links.new(ao01.outputs[0], switches["Preview.Eevee"].inputs[1])
+    links.new(ao01.outputs[0], switches["Object"].inputs[switch_comp])
+    links.new(ao01.outputs[0], switches["Buildup.Cycles"].inputs[switch_comp])
+    links.new(ao01.outputs[0], switches["Buildup.Eevee"].inputs[switch_comp])
+    links.new(ao02.outputs[0], switches["Shadow.Cycles"].inputs[switch_comp])
+    links.new(ao02.outputs[0], switches["Shadow.Eevee"].inputs[switch_comp])
+    links.new(ao01.outputs[0], switches["Preview.Cycles"].inputs[switch_comp])
+    links.new(ao01.outputs[0], switches["Preview.Eevee"].inputs[switch_comp])
 
     arrange_nodes([tree])
 

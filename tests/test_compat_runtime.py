@@ -274,11 +274,29 @@ def test_279_uses_old_node_indices():
   assert compat.get_mix_output() == 0
 
 
+def test_279_uses_old_socket_indices():
+  compat = get_compat(2, 79)
+  assert compat.get_switch_input_indices() == (0, 1)
+  assert compat.get_alpha_over_image_indices() == (1, 2)
+
+
+def test_420_uses_old_socket_indices():
+  compat = get_compat(4, 2)
+  assert compat.get_switch_input_indices() == (0, 1)
+  assert compat.get_alpha_over_image_indices() == (1, 2)
+
+
 def test_500_uses_new_node_indices():
   compat = get_compat(5, 0)
   assert compat.get_invert_color_input() == 0
   assert compat.get_mix_color_inputs() == (6, 7)
   assert compat.get_mix_output() == 2
+
+
+def test_500_uses_new_socket_indices():
+  compat = get_compat(5, 0)
+  assert compat.get_switch_input_indices() == (1, 2)
+  assert compat.get_alpha_over_image_indices() == (0, 1)
 
 
 # -- pure return value methods --

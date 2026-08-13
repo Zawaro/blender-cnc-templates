@@ -94,6 +94,23 @@ class BaseCompat(ABC):
   def setup_mix_node(self, node) -> None:
     """Additional setup after creating a mix node (e.g. data_type='RGBA' for 5.0)."""
 
+  def get_switch_input_indices(self) -> Tuple[int, int]:
+    """Return (pass_through, composite) input indices for CompositorNodeSwitch.
+
+    Defaults to the <=4.x layout: Off(0) / On(1). Blender 5.0 reordered to
+    False(1) / True(2), overridden in Compat500.
+    """
+    return (0, 1)
+
+  def get_alpha_over_image_indices(self) -> Tuple[int, int]:
+    """Return (background, foreground) input indices for CompositorNodeAlphaOver.
+
+    Defaults to the <=4.x layout: Image background(1) / Image foreground(2).
+    Blender 5.0 reordered to Background(0) / Foreground(1), overridden in
+    Compat500.
+    """
+    return (1, 2)
+
   # -- Material properties --
 
   @abstractmethod
