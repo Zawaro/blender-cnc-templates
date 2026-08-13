@@ -52,6 +52,12 @@ class Compat500(BaseCompat):
   def get_invert_color_input(self) -> int:
     return 0
 
+  def get_switch_input_indices(self) -> Tuple[int, int]:
+    return (1, 2)
+
+  def get_alpha_over_image_indices(self) -> Tuple[int, int]:
+    return (0, 1)
+
   def get_mix_color_inputs(self) -> Tuple[int, int]:
     return (6, 7)
 

@@ -11,6 +11,7 @@ EXPECTED_METHODS = [
   "get_composite_output_node", "add_group_input", "add_group_output",
   "set_switch_value", "set_alpha_over_premultiply", "get_invert_color_input",
   "get_mix_color_inputs", "get_mix_output", "setup_mix_node",
+  "get_switch_input_indices", "get_alpha_over_image_indices",
   "set_material_transparency", "set_shadow_catcher", "set_glossy_visibility",
   "hide_object_viewport", "hide_object_render", "hide_object_select",
   "plane_add_kwargs", "add_sun_light", "set_sun_shadow_properties",
