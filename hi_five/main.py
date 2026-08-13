@@ -22,6 +22,8 @@ for suffix, world_cls in WORLD_CLASS_MAP.items():
 for cls in ALL_SCENE_CLASSES:
   cls(compat)
 
+compat.select_scene("Red Alert 2")
+
 load_scripts(os.path.join(CURRENT_PATH, "scripts"))
 setup_text_editor()
 
