@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.0](https://github.com/Zawaro/blender-cnc-templates/compare/v1.1.0...v1.2.0) (2026-08-13)
+
+
+### Features
+
+* **scenes:** default to Red Alert 2 scene on open ([#21](https://github.com/Zawaro/blender-cnc-templates/issues/21)) ([2f772b4](https://github.com/Zawaro/blender-cnc-templates/commit/2f772b4f494a14c83354e3b9d93d52c189a3283b))
+
+
+### Bug Fixes
+
+* **compat_500:** use BLENDER_EEVEE engine string for Blender 5 ([#21](https://github.com/Zawaro/blender-cnc-templates/issues/21)) ([a05d12f](https://github.com/Zawaro/blender-cnc-templates/commit/a05d12fed26ef845f256b0e2c4c3157adbf33e98))
+* **compositor:** version-correct switch and alpha over socket wiring ([#21](https://github.com/Zawaro/blender-cnc-templates/issues/21)) ([e067537](https://github.com/Zawaro/blender-cnc-templates/commit/e0675375fd289aff28a796cb8be7a76a77a75cf1))
+* **eevee_next:** blended shadow material and keep sun visible in shadow scripts ([#21](https://github.com/Zawaro/blender-cnc-templates/issues/21)) ([a00911a](https://github.com/Zawaro/blender-cnc-templates/commit/a00911a796e599eff01b1b2d3936c0109407502e))
+* **scripts:** keep sun visible for Eevee shadow frame ([#21](https://github.com/Zawaro/blender-cnc-templates/issues/21)) ([a421b1a](https://github.com/Zawaro/blender-cnc-templates/commit/a421b1a36409158a253bd2293fbeb6a5da130885))
+* **scripts:** prefix readme lines with comments so running it is a no-op ([#21](https://github.com/Zawaro/blender-cnc-templates/issues/21)) ([b32af99](https://github.com/Zawaro/blender-cnc-templates/commit/b32af995d3d608ecfe2dbfe97201b5eae319286e))
+
 ## [1.1.0](https://github.com/Zawaro/blender-cnc-templates/compare/v1.0.0...v1.1.0) (2026-08-11)
 
 
