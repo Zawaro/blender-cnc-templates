@@ -97,7 +97,7 @@ def generate_all():
   if os.path.exists(readme_path):
     with open(readme_path, "r") as rf:
       with open(os.path.join(output_path, "Readme.txt"), "w") as f:
-        f.write(rf.read())
+        f.write("\n".join("# " + line if line.strip() else line for line in rf.read().split("\n")))
     print("Generated: Readme.txt")
 
 

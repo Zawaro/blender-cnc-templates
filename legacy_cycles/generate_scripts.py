@@ -85,7 +85,7 @@ bpy.context.scene.render.image_settings.color_mode = 'RGBA'
   
   with open(os.path.join(current_path, 'README.md'), 'r') as readme:
     with open(os.path.join(output_path, 'Readme.txt'), 'w') as f:
-      f.write(readme.read())
+      f.write('\n'.join('# ' + line if line.strip() else line for line in readme.read().split('\n')))
 
 def get_base_scripts():
   return '''import bpy
