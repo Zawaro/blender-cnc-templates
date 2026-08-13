@@ -18,8 +18,8 @@
 
 - [x] 3.1 Add `test_279_uses_old_node_indices`-style assertions in `tests/test_compat_runtime.py`: ≤4.x versions return `(0, 1)` and `(1, 2)`
 - [x] 3.2 Add 5.0 assertions: `get_switch_input_indices() == (1, 2)` and `get_alpha_over_image_indices() == (0, 1)`
-- [ ] 3.3 Run `uv run ruff check .`
-- [ ] 3.4 Run `uv run pytest tests/ -v` (non-bpy tier) and confirm green
+- [x] 3.3 Run `uv run ruff check .`
+- [x] 3.4 Run `uv run pytest tests/ -v` (non-bpy tier) and confirm green
 
 ## 4. Build verification
 
