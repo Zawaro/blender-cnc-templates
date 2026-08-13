@@ -78,7 +78,7 @@ def generate_render_script(compat: BaseCompat, engine_key: str, render_type: str
     'bpy.data.objects["Plane.blue." + suffix].hide_render = {}'.format(vis.blue),
     'bpy.data.objects["Plane.grey." + suffix].hide_render = {}'.format(vis.grey),
     'bpy.data.objects["Plane.ambient." + suffix].hide_render = {}'.format(vis.ambient),
-    'bpy.data.objects["Sun." + suffix].hide_render = {}'.format("True" if render_type == "Shadow" and engine_key != "CYCLES" else "False"),
+    'bpy.data.objects["Sun." + suffix].hide_render = {}'.format("True" if render_type == "Shadow" and engine_key == "CYCLES" else "False"),
     "",
     "bpy.context.scene.cycles.filter_width = {}".format(cycles_filter),
     "bpy.context.scene.render.filter_size = {}".format(eevee_filter),
