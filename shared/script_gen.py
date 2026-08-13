@@ -139,5 +139,6 @@ def generate_all_scripts(compat: BaseCompat, output_path: str, readme_path: Opti
 
   if readme_path and os.path.exists(readme_path):
     with open(readme_path, "r") as rf:
+      lines = ["# " + line if line.strip() else line for line in rf.read().split("\n")]
       with open(os.path.join(output_path, "Readme.txt"), "w") as f:
-        f.write(rf.read())
+        f.write("\n".join(lines))
