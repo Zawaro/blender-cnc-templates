@@ -32,7 +32,7 @@ bpy.data.objects["Plane.shadow2." + suffix].hide_render = True
 bpy.data.objects["Plane.blue." + suffix].hide_render = True
 bpy.data.objects["Plane.grey." + suffix].hide_render = True
 bpy.data.objects["Plane.ambient." + suffix].hide_render = True
-bpy.data.objects["Sun." + suffix].hide_render = True
+bpy.data.objects["Sun." + suffix].hide_render = False
 
 bpy.context.scene.cycles.filter_width = 0.01
 bpy.context.scene.render.filter_size = 0.8
