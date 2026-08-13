@@ -1,4 +1,4 @@
-TEMPLATE_VERSION = "1.1.0"  # x-release-please-version
+TEMPLATE_VERSION = "1.2.0"  # x-release-please-version
 CYCLES_FILTER_WIDTH = 0.9
 EEVEE_FILTER_SIZE = 0.8
 EEVEE_NEXT_FILTER_SIZE = 0.7
