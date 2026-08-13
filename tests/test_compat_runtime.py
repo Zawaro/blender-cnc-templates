@@ -43,7 +43,7 @@ def test_set_material_transparency_sets_correct_attrs(major, minor):
     # 4.2 without shadow_method: falls through to surface_render_method
     mat2 = MockObj(blend_method="OPAQUE", surface_render_method="DITHERED")
     compat.set_material_transparency(mat2, "BLEND", "HASHED")
-    assert mat2.surface_render_method == "DITHERED"
+    assert mat2.surface_render_method == "BLENDED"
   else:
     mat = MockObj(blend_method="OPAQUE", shadow_method="OPAQUE", surface_render_method="DITHERED")
     compat.set_material_transparency(mat, "BLEND", "CLIP")

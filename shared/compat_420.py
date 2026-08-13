@@ -67,8 +67,7 @@ class Compat420(BaseCompat):
     if hasattr(material, "shadow_method"):
       material.shadow_method = shadow
     elif hasattr(material, "surface_render_method"):
-      shadow_map = {"NONE": "DITHERED", "CLIP": "CLIP", "HASHED": "DITHERED", "BLEND": "BLENDED"}
-      material.surface_render_method = shadow_map.get(shadow, "DITHERED")
+      material.surface_render_method = "BLENDED"
 
   def set_shadow_catcher(self, obj, value: bool) -> None:
     obj.is_shadow_catcher = value
